@@ -1,16 +1,18 @@
-- title: home
+- title: Стартовая
   url: /
   external: false
 
-- title: archive
+- title: Обо мне
+  url: /about/
+  external: false
+
+- title: Архив
   url: /archive/
   external: false
 
-- title: about
-  url: /about/
-  external: false # set true if you using external link, see below
 
-# Example:
+
+# if external true:
 # - title: github
 #   url: https://github.com/piharpi/jekyll-klise
 #   external: true

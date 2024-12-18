@@ -2,13 +2,18 @@
   url: /
   external: false
 
-- title: Архив
-  url: /archive/
+- title: Тэги
+  url: /tags/
   external: false
 
 - title: Обо мне
   url: /about/
   external: false
+
+- title: Архив
+  url: /archive/
+  external: false
+
 
 
 

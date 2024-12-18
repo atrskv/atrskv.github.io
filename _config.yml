@@ -19,8 +19,8 @@ author:
   email: atrskv@ya.ru
   avatar: /assets/img/avatar.jpg
 
-url: "https://atrskv.github.io"
-baseurl: "https://atrskv.github.io"
+url: # ...
+baseurl: # ...
 permalink: /:title/
 google_analytics:
 fb_appid:

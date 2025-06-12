@@ -1,19 +1,19 @@
 {
   "links": [
     {
-      "name": "twitter",
-      "url": "https://twitter.com/zerostaticio",
-      "image": "images/social/twitter.svg"
+      "name": "telegram",
+      "url": "http://t.me/atrskv",
+      "image": "images/social/telegram.svg"
     },
     {
       "name": "github",
-      "url": "https://github.com/zerostaticthemes/hugo-winston-theme",
+      "url": "https://github.com/atrskv",
       "image": "images/social/github.svg"
     },
     {
-      "name": "linkedin",
-      "url": "https://www.linkedin.com",
-      "image": "images/social/linkedin.svg"
+      "name": "discogs",
+      "url": "https://www.discogs.com/ru/user/atrskv/collection",
+      "image": "images/social/discogs.svg"
     }
   ]
 }

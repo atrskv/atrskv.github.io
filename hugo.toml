@@ -1,8 +1,10 @@
-baseURL = "/"
-languageCode = "en-us"
+baseURL = "atrskv.github.io"
+languageCode = "ru"
+defaultContentLanguage = "ru"
+
 theme = "hugo-winston-theme"
 themesDir = "themes"
-title = "Hugo Winston Theme"
+title = "torsukov"
 
 [pagination]
   pagerSize = 3
@@ -18,7 +20,8 @@ pygmentsUseClasses = true
 
 [params]
   google_analytics_id = ""
-  twitter_handle = "@zerostaticio"
+  twitter_handle = ""
+
   showAuthorOnHomepage = true
   showAuthorOnPosts = false
   showIntroContentOnHomepage = true
@@ -28,16 +31,16 @@ pygmentsUseClasses = true
   sortPostsByDateOldestFirst = false
   addDot = true
   addFrame = true
-  highlightColor = '#7b16ff'
+  highlightColor = '#000000'
   baseColor = "#ffffff"
   baseOffsetColor = "#eaeaea"
   headingColor = "#1c1b1d"
   textColor = "#4e5157"
-  dotColor = "#7b16ff"
+  dotColor = "#cd90be"
   enableGoogleFonts = true 
   googleFontsUrl = "https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
-  fontFamilyHeading = "Poppins"
-  fontFamilyParagraph = "Helvetica"
+fontFamilyHeading = "'Poppins', sans-serif"
+  fontFamilyParagraph = "'Helvetica', sans-serif"
   fontFamilyMonospace = "monospace"
 
 # markdown config settings https://gohugo.io/getting-started/configuration-markup/#goldmark
@@ -51,21 +54,17 @@ pygmentsUseClasses = true
 [menu]
   [[menu.main]]
     identifier = 'home'
-    name = 'Home'
+    name = 'Обо мне'
     url = '/'
     weight = 1
   [[menu.main]]
-    name = "Blog"
-    identifier = "blog"
-    weight = 2
-    url = "/posts/"
-  [[menu.main]]
-    name = "About"
-    identifier = "about"
-    weight = 3
-    url = "/About/"
-  [[menu.main]]
-    name = "Tags"
     identifier = "tags"
-    weight = 4
+    name = "Тэги"
+    weight = 3
     url = "/tags/"
+  [[menu.main]]
+    identifier = "blog"
+    name = "Статьи"
+    weight = 4
+    url = "/posts/"
+

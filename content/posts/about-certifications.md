@@ -3,7 +3,7 @@ title: О сертификациях
 date: 2025-06-04
 description: "Видели, там теперь можно навыки свои подтверждать на hh.ru?"
 tags:
-   - istqb
+   - ISTQB
 ---
 
 Видели, [там теперь можно навыки свои подтверждать](https://career.hh.ru/assessment) на [hh.ru](https://spb.hh.ru)?

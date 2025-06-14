@@ -6,6 +6,8 @@ theme = "hugo-winston-theme"
 themesDir = "themes"
 title = "torsukov"
 
+disqusShortname = "atrskv"
+
 [pagination]
   pagerSize = 3
 

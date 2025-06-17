@@ -170,3 +170,10 @@ ul {
     }
   }
 }
+
+.summary-title {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  white-space: normal;
+}

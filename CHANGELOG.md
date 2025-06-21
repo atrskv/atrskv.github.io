@@ -1,3 +1,46 @@
+## v1.1.0 (2025-06-21)
+
+### Features
+
+- add comments to posts
+
+### Bug Fixes
+
+- update li margin left
+- update meta tags
+- update titles width
+- update disqus thread margin
+- update titles fonts
+- rename post about certs
+- update menu item line
+
+### Content
+
+- fix typos
+- update qa bible post title
+- update main page
+- add company link to description
+
+### Chores
+
+- remove outdated hugo config
+- update link
+- change date format
+
+### Refactoring
+
+- off hyphens in job title
+- update titles word break
+- update intro width
+- remove frame
+- update figure font style
+- remove header logo link
+
+### Documentation
+
+- add bages
+- add README.md
+
 ## v1.0.0 (2025-06-20)
 
 ### Bug Fixes

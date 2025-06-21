@@ -1,5 +1,6 @@
 a {
   color: var(--highlight-color);
+  word-break: break-word;
   text-decoration: none;
   &:hover {
     text-decoration: underline;
@@ -174,7 +175,7 @@ ul {
 h1, .summary-title {
     
   overflow-wrap: break-word;
-  word-break: break-word;
+  word-break: break-all;
   hyphens: auto;
   white-space: normal;
 }
@@ -185,4 +186,9 @@ h1, .summary-title {
 
 #job-title h1 {
     hyphens: none;
+    word-break: break-word;
+}
+
+.intro h1 {
+    word-break: break-word;
 }

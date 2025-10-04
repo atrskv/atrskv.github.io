@@ -1,9 +1,22 @@
 <div class="author author-large">
   <img width="50" class="author-image" src="{{ .Site.Data.author.image | relURL }}" alt="{{ .Site.Data.author.name }}" />
-  <span class="author-name">{{ .Site.Data.author.name }}</span>
-<!--
+  <span class="author-name">{{ .Site.Data.author.name }},</span>
+
 <span class="author-title">
-  работаю в <a href="{{ .Site.Data.author.companyURL }}" target="_blank" rel="noopener"><strong>BIOCAD</strong></a>
+  работаю <strong>QA Automation Engineer  </strong> в <a href="{{ .Site.Data.author.companyURL }}" target="_blank" rel="noopener"><strong>BIOCAD</strong></a>
 </span>
--->
+
 </div>
+
+<style>
+.author-title {
+  white-space: nowrap;
+}
+
+@media (max-width: 785px) {
+  .author-title {
+    white-space: normal;
+    padding-top: 10px;
+  }
+}
+</style>

@@ -1,45 +1,360 @@
 {{ define "body_classes" }}page-home{{ end }}
 
 {{ define "main" }}
-
   {{ if .Site.Params.showAuthorOnHomepage }}
     {{ partial "author-large.html" . }}
   {{ end }}
 
-  <div class="intro">
-    <div id="job-title">
-    <h1>{{ .Title }}{{ if .Site.Params.addDot }}<span class="dot">.</span>{{ end }}</h1>
+  <div class="terminal" id="terminal">
+    <div class="mac-buttons">
+      <div class="red"></div>
+      <div class="yellow"></div>
+      <div class="green"></div>
     </div>
-    {{ if .Site.Params.showIntroContentOnHomepage}}
-      <div class="intro-content">{{ .Content }}</div>
-    {{ end }}
+    <div id="content" class="terminal-content">
+      <div class="line">$ <span class="typed"></span><span class="cursor"></span></div>
+    </div>
   </div>
 
-  {{ if .Site.Params.showPostsOnHomepage }}
+  <style>
+    .terminal {
+      background: white;
+      color: black;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      padding: 20px 20px 30px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      line-height: 1.4;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Fira Code', monospace;
+      font-size: 16px;
+      margin-top: 30px;
+      overflow-x: auto;
+      white-space: pre;
+      word-break: normal;
+    }
 
-    {{ $pages := where .Site.RegularPages "Type" "posts" }}
-    {{ $sorted := ($pages.ByParam "date").Reverse }}
-    {{ if .Site.Params.sortPostsByDateOldestFirst }}
-      {{ $sorted = $pages.ByParam "date" }}
-    {{ end }}
+    .terminal-content {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      margin-top: 30px;
+      flex-grow: 1;
+    }
 
-    {{ $paginator := .Paginate $sorted }}
+    .mac-buttons {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      display: flex;
+      gap: 8px;
+    }
 
-    {{ if .Site.Params.usePaginationOnHomepage }}
-      {{ range $paginator.Pages }}
-        {{ .Render "summary" }}
-      {{ end }}
-      {{ partial "paginator" . }}
-    {{ else }}
-      {{ $limit := .Site.Params.limitPostsOnHomepage | default 3 }}
-      {{ range first $limit $sorted}}
-        {{ .Render "summary" }}
-      {{ end }}
-      <a class="view-more" href="/posts">More Posts</a>
-    {{ end }}
-  {{ end }}
+    .mac-buttons div {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
 
+    .red { background: #ff5f56; }
+    .yellow { background: #ffbd2e; }
+    .green { background: #27c93f; }
+
+    .line {
+      display: block;
+      margin: 2px 0;
+      color: black;
+      font-family: var(--font-family-monospace, monospace);
+      font-size: 16px;
+      white-space: pre-wrap;
+    }
+
+    .line.separator {
+      white-space: nowrap;
+      font-weight: bold;
+      user-select: none;
+      color: black;
+      margin: 8px 0;
+      text-align: center;
+    }
+
+    .passed {
+      color: green;
+      font-weight: bold;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 8px;
+      height: 1em;
+      background-color: black;
+      vertical-align: bottom;
+      margin-left: 2px;
+      animation: blink 1s step-start infinite;
+    }
+
+    @keyframes blink {
+      50% { background-color: transparent; }
+    }
+
+    .highlight-link {
+      font-weight: bold;
+      color: #000000;
+      text-decoration: none;
+    }
+
+    .highlight-link:hover {
+      text-decoration: underline;
+    }
+
+    @media (max-width: 600px) {
+      .terminal {
+        font-size: 14px;
+        padding: 15px 15px 25px;
+      }
+      .cursor {
+        width: 6px;
+      }
+    }
+  </style>
+
+  <script>
+    class TerminalSimulator {
+      constructor() {
+        this.commands = [
+          {
+            cmd: 'cat README.md',
+            output: [
+              'Последователь <a href="https://context-driven-testing.com/" class="highlight-link">context driven testing</a>,',
+              'сосредоточен на повышении качества продукта с учетом его специфики — постоянно анализирую и совершенствую процессы, внедряя наиболее подходящие практики тестирования',
+              'Делюсь наблюдениями, поддерживаю начинающих',
+            ],
+            instantOutput: true
+          },
+          {
+            cmd: 'pytest . -v --alluredir=allure-results',
+            output: [
+              '',
+              this.createSeparator('test session starts'),
+              'platform darwin -- Python 3.13.3, pytest-8.4.2, pluggy-1.6.0',
+              'rootdir: /Users/atrskv/projects/project-tests',
+              'configfile: pyproject.toml',
+              'plugins: allure-pytest-2.15.0, Faker-37.6.0',
+              'collected 1 item',
+              '',
+              'tests/test_example.py::test_example_case PASSED',
+              '',
+              this.createSeparator('1 passed in 0.04s'),
+              ''
+            ],
+            instantOutput: false
+          }
+        ];
+
+        this.commandIndex = 0;
+        this.charIndex = 0;
+        this.charWidth = null;
+        this.resizeObserver = null;
+
+        this.init();
+      }
+
+      init() {
+        this.startTyping();
+        this.setupResizeObserver();
+      }
+
+      createSeparator(text) {
+        return `__SEPARATOR_START__${text}__SEPARATOR_END__`;
+      }
+
+      getCharWidth() {
+        if (this.charWidth) return this.charWidth;
+
+        const testSpan = document.createElement('span');
+        testSpan.style.cssText = `
+          font-family: monospace;
+          font-size: 16px;
+          position: absolute;
+          visibility: hidden;
+        `;
+        testSpan.textContent = 'A';
+        document.body.appendChild(testSpan);
+        this.charWidth = testSpan.getBoundingClientRect().width;
+        document.body.removeChild(testSpan);
+
+        return this.charWidth;
+      }
+
+      getTerminalWidthInChars() {
+        const term = document.getElementById('terminal');
+        const style = window.getComputedStyle(term);
+        const termWidthPx = term.getBoundingClientRect().width;
+        const paddingLeft = parseFloat(style.paddingLeft) || 0;
+        const paddingRight = parseFloat(style.paddingRight) || 0;
+        const availableWidth = termWidthPx - paddingLeft - paddingRight;
+        const charWidth = this.getCharWidth();
+
+        return Math.max(0, Math.floor(availableWidth / charWidth));
+      }
+
+      makeSeparatorLine(text) {
+        const totalLength = this.getTerminalWidthInChars();
+        const textWithSpaces = ` ${text} `;
+        
+        if (textWithSpaces.length >= totalLength) {
+          return text;
+        }
+
+        const sideLen = Math.floor((totalLength - textWithSpaces.length) / 2);
+        const left = '='.repeat(Math.max(0, sideLen));
+        const right = '='.repeat(Math.max(0, totalLength - textWithSpaces.length - sideLen));
+
+        return left + textWithSpaces + right;
+      }
+
+      createLineElement(content, className = '') {
+        const div = document.createElement('div');
+        div.className = `line ${className}`.trim();
+
+        if (content.startsWith('__SEPARATOR_START__') && content.endsWith('__SEPARATOR_END__')) {
+          const text = content.replace('__SEPARATOR_START__', '').replace('__SEPARATOR_END__', '');
+          div.classList.add('separator');
+          div.textContent = this.makeSeparatorLine(text);
+          
+          div.dataset.originalText = text;
+        } else if (content.includes('PASSED')) {
+          div.innerHTML = content.replace('PASSED', '<span class="passed">PASSED</span>');
+        } else {
+          div.innerHTML = content;
+        }
+
+        return div;
+      }
+
+      scrollToBottom() {
+        const term = document.getElementById('terminal');
+        term.scrollTop = term.scrollHeight;
+      }
+
+      createInputLine() {
+        const div = document.createElement('div');
+        div.className = 'line';
+        div.innerHTML = '$ <span class="typed"></span><span class="cursor"></span>';
+        return div;
+      }
+
+      typeCommand() {
+        const currentCommand = this.commands[this.commandIndex];
+        const currentLineSpan = document.querySelector('#content .line:last-child .typed');
+        const currentCursor = document.querySelector('#content .line:last-child .cursor');
+
+        if (!currentLineSpan) {
+          console.error('Current line span not found');
+          return;
+        }
+
+        if (this.charIndex < currentCommand.cmd.length) {
+          currentLineSpan.textContent += currentCommand.cmd[this.charIndex];
+          this.charIndex++;
+          setTimeout(() => this.typeCommand(), 40);
+          this.scrollToBottom();
+        } else {
+          currentCursor?.remove();
+          setTimeout(() => {
+            currentCommand.instantOutput 
+              ? this.showOutputInstant(currentCommand.output)
+              : this.showOutput(currentCommand.output);
+          }, 400);
+        }
+      }
+
+      showOutputInstant(lines) {
+        lines.forEach(line => {
+          const element = this.createLineElement(line);
+          document.getElementById('content').appendChild(element);
+        });
+
+        this.scrollToBottom();
+        this.nextCommand();
+      }
+
+      showOutput(lines) {
+        let outputIndex = 0;
+
+        const processNextLine = () => {
+          if (outputIndex >= lines.length) {
+            this.nextCommand();
+            return;
+          }
+
+          const line = lines[outputIndex];
+          const element = this.createLineElement(line);
+          document.getElementById('content').appendChild(element);
+          this.scrollToBottom();
+
+          outputIndex++;
+          
+          if (outputIndex < lines.length) {
+            setTimeout(processNextLine, 80);
+          } else {
+            this.nextCommand();
+          }
+        };
+
+        processNextLine();
+      }
+
+      nextCommand() {
+        if (this.commandIndex < this.commands.length - 1) {
+          this.commandIndex++;
+          this.charIndex = 0;
+          
+          const inputLine = this.createInputLine();
+          document.getElementById('content').appendChild(inputLine);
+          
+          setTimeout(() => this.typeCommand(), 300);
+        }
+      }
+
+      updateSeparators() {
+        const separators = document.querySelectorAll('.line.separator');
+        separators.forEach(div => {
+          const originalText = div.dataset.originalText;
+          if (originalText) {
+            div.textContent = this.makeSeparatorLine(originalText);
+          }
+        });
+      }
+
+      setupResizeObserver() {
+        this.resizeObserver = new ResizeObserver(() => {
+          this.updateSeparators();
+        });
+
+        const terminal = document.getElementById('terminal');
+        if (terminal) {
+          this.resizeObserver.observe(terminal);
+        }
+      }
+
+      startTyping() {
+        this.typeCommand();
+      }
+
+      destroy() {
+        this.resizeObserver?.disconnect();
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.terminalSimulator = new TerminalSimulator();
+    });
+  </script>
 {{ end }}
 
-{{ define "footer_js" }}
-{{ end }}
+{{ define "footer_js" }}{{ end }}

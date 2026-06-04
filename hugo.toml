@@ -60,6 +60,11 @@ fontFamilyHeading = "'Poppins', sans-serif"
     url = '/'
     weight = 1
   [[menu.main]]
+    identifier = "stack"
+    name = "Стек"
+    url = "#stack-modal"
+    weight = 2
+  [[menu.main]]
     identifier = "tags"
     name = "Тэги"
     weight = 3

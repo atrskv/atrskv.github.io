@@ -1,16 +1,49 @@
 <script>
 (function() {
   var checkbox = document.getElementById('theme-checkbox');
-  if (!checkbox) return;
-  checkbox.checked = document.documentElement.classList.contains('dark');
-  checkbox.addEventListener('change', function() {
-    if (checkbox.checked) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
+  var favicon = document.getElementById('favicon');
+  if (checkbox) {
+    checkbox.checked = document.documentElement.classList.contains('dark');
+    checkbox.addEventListener('change', function() {
+      if (checkbox.checked) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+        if (favicon) favicon.href = favicon.href.replace('favicon.png', 'favicon-cat.png');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('theme', 'light');
+        if (favicon) favicon.href = favicon.href.replace('favicon-cat.png', 'favicon.png');
+      }
+    });
+  }
+
+  var modal = document.getElementById('stack-modal');
+  if (!modal) return;
+
+  var closeBtn = document.getElementById('stack-modal-close');
+
+  function openModal() {
+    modal.classList.add('open');
+    document.body.classList.add('lock-scroll');
+  }
+
+  function closeModal() {
+    modal.classList.remove('open');
+    document.body.classList.remove('lock-scroll');
+  }
+
+  document.addEventListener('click', function(e) {
+    var link = e.target.closest('a');
+    if (link && link.getAttribute('href') && link.getAttribute('href').indexOf('stack-modal') !== -1) {
+      e.preventDefault();
+      openModal();
     }
+  });
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
   });
 })();
 </script>

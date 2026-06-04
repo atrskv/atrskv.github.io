@@ -1,0 +1,10 @@
+<div id="stack-modal" class="stack-modal">
+  <div class="stack-modal-body">
+    {{ with site.GetPage "/stack" }}
+      {{ .Content }}
+    {{ end }}
+  </div>
+</div>
+<div class="stack-modal-close-trigger">
+  <button class="stack-modal-close" id="stack-modal-close" aria-label="Закрыть"></button>
+</div>

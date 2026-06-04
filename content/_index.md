@@ -1,6 +1,6 @@
 ---
 title: QA Automation Engineer
-description: Последователь context driven testing, работаю в BIOCAD
+description: "Последователь context driven testing, работаю в BIOCAD"
 image: "images/author-large.png"
 ---
 

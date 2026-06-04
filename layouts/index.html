@@ -104,12 +104,35 @@
 
     .highlight-link {
       font-weight: bold;
-      color: #000000;
+      color: var(--highlight-color);
       text-decoration: none;
     }
 
     .highlight-link:hover {
       text-decoration: underline;
+    }
+
+    html.dark .terminal {
+      background: #181825;
+      color: #cdd6f4;
+      border-color: #313244;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
+    }
+
+    html.dark .line {
+      color: #cdd6f4;
+    }
+
+    html.dark .line.separator {
+      color: #bac2de;
+    }
+
+    html.dark .passed {
+      color: #a6e3a1 !important;
+    }
+
+    html.dark .cursor {
+      background-color: #cdd6f4;
     }
 
     @media (max-width: 600px) {
@@ -206,7 +229,7 @@
       makeSeparatorLine(text) {
         const totalLength = this.getTerminalWidthInChars();
         const textWithSpaces = ` ${text} `;
-        
+
         if (textWithSpaces.length >= totalLength) {
           return text;
         }
@@ -226,7 +249,7 @@
           const text = content.replace('__SEPARATOR_START__', '').replace('__SEPARATOR_END__', '');
           div.classList.add('separator');
           div.textContent = this.makeSeparatorLine(text);
-          
+
           div.dataset.originalText = text;
         } else if (content.includes('PASSED')) {
           div.innerHTML = content.replace('PASSED', '<span class="passed">PASSED</span>');
@@ -267,7 +290,7 @@
         } else {
           currentCursor?.remove();
           setTimeout(() => {
-            currentCommand.instantOutput 
+            currentCommand.instantOutput
               ? this.showOutputInstant(currentCommand.output)
               : this.showOutput(currentCommand.output);
           }, 400);
@@ -299,7 +322,7 @@
           this.scrollToBottom();
 
           outputIndex++;
-          
+
           if (outputIndex < lines.length) {
             setTimeout(processNextLine, 80);
           } else {
@@ -314,10 +337,10 @@
         if (this.commandIndex < this.commands.length - 1) {
           this.commandIndex++;
           this.charIndex = 0;
-          
+
           const inputLine = this.createInputLine();
           document.getElementById('content').appendChild(inputLine);
-          
+
           setTimeout(() => this.typeCommand(), 300);
         }
       }

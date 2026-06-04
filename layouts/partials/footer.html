@@ -1,0 +1,21 @@
+<div class="footer">
+  <div class="footer-bottom">
+    {{ if .Site.Data.social.links }}
+    <div class="footer-social">
+      {{ range .Site.Data.social.links }}
+        <span class="social-icon social-icon-{{ .name | urlize }}">
+          <a href="{{ .url }}" title="{{ .name }}" target="_blank" rel="noopener">
+            {{ readFile (printf "static/%s" .image) | safeHTML }}
+          </a>
+        </span>
+      {{ end }}
+    </div>
+    {{ end }}
+    <label class="theme-toggle" for="theme-checkbox" title="Переключить тему">
+      <input type="checkbox" id="theme-checkbox">
+      <span class="theme-toggle-track">
+        <span class="theme-toggle-thumb"></span>
+      </span>
+    </label>
+  </div>
+</div>

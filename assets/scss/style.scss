@@ -10,6 +10,15 @@
   --dot-color: {{ .Site.Params.dotColor | default "#7b16ff" }};
 }
 
+html.dark {
+  --base-color: #1e1e2e;
+  --base-offset-color: #313244;
+  --highlight-color: #cba6f7;
+  --heading-color: #b4befe;
+  --text-color: #bac2de;
+  --dot-color: #cba6f7;
+}
+
 $breakpoints: (
   'small': 767px,
   'medium': 992px,
@@ -59,4 +68,82 @@ body {
 }
 .summary .summary-title .dot {
   font-family: var(--font-family-heading);
+}
+
+/* Footer layout: social icons left, toggle right */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Theme toggle */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.theme-toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.theme-toggle-track {
+  width: 44px;
+  height: 24px;
+  box-sizing: border-box;
+  background: #000;
+  border: 2px solid #000;
+  border-radius: 14px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.theme-toggle-thumb {
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.25s, background 0.25s;
+}
+
+html.dark .theme-toggle-track {
+  background: var(--text-color);
+  border-color: var(--text-color);
+}
+
+html.dark .theme-toggle-thumb {
+  transform: translateX(20px);
+  background: #1e1e2e;
+}
+
+/* Avatar swap: author-cat in dark mode */
+.author img.author-image-dark { display: none; }
+html.dark .author img.author-image-light { display: none; }
+html.dark .author img.author-image-dark { display: inline-block; }
+
+/* Author section: keep text-color in dark mode, not heading-color */
+html.dark .author {
+  color: var(--text-color);
+  img {
+    border-color: var(--text-color);
+  }
+}
+
+/* Social icons: use text color in dark mode */
+.social-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+html.dark .social-icon svg {
+  fill: var(--text-color);
 }

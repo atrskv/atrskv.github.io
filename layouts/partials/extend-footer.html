@@ -1,0 +1,16 @@
+<script>
+(function() {
+  var checkbox = document.getElementById('theme-checkbox');
+  if (!checkbox) return;
+  checkbox.checked = document.documentElement.classList.contains('dark');
+  checkbox.addEventListener('change', function() {
+    if (checkbox.checked) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  });
+})();
+</script>

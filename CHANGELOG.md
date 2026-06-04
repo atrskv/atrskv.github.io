@@ -1,3 +1,23 @@
+## v1.2.0 (2026-06-05)
+
+### Feat
+
+- update comments
+- add stack page
+- add terminal
+
+### Fix
+
+- update line height
+- update li margin left
+- update meta tags
+- update titles width
+
+### Refactor
+
+- remove dot
+- off hyphens in job title
+
 ## v1.1.0 (2025-06-21)
 
 ### Features

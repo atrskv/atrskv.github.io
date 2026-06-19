@@ -4,6 +4,18 @@
       {{ .Content }}
     {{ end }}
   </div>
+  <div class="stack-model-wrap">
+    <model-viewer
+      src="/models/3dsvg.glb"
+      camera-controls
+      auto-rotate
+      rotation-per-second="15deg"
+      interaction-prompt="none"
+      class="stack-model-viewer"
+      background-color="transparent"
+      shadow-intensity="0">
+    </model-viewer>
+  </div>
 </div>
 <div class="stack-modal-close-trigger">
   <button class="stack-modal-close" id="stack-modal-close" aria-label="Закрыть"></button>

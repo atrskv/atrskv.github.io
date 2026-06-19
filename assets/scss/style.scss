@@ -92,7 +92,32 @@ body {
     visibility: visible;
     height: 100%;
     display: flex;
+    overflow-y: auto;
   }
+}
+
+.stack-model-wrap {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding-bottom: 48px;
+  flex-shrink: 0;
+}
+
+.stack-model-viewer {
+  width: 110px;
+  height: 110px;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  display: block;
+  --progress-bar-height: 0px;
+  filter: grayscale(1) brightness(0.06);
+}
+
+html.dark .stack-model-viewer {
+  filter: sepia(1) hue-rotate(195deg) saturate(1.8) brightness(1.0);
 }
 
 .stack-modal-close-trigger {

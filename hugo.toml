@@ -1,4 +1,4 @@
-baseURL = "atrskv.github.io"
+baseURL = "https://atrskv.github.io/"
 languageCode = "ru"
 defaultContentLanguage = "ru"
 
@@ -23,6 +23,8 @@ pygmentsUseClasses = true
 [params]
   google_analytics_id = ""
   twitter_handle = ""
+  defaultImage = "images/author-large.png"
+  description = "Последователь context driven testing, работаю в BIOCAD"
 
   showAuthorOnHomepage = true
   showAuthorOnPosts = false

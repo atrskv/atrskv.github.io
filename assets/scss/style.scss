@@ -42,6 +42,10 @@ html, body {
   box-sizing: border-box;
 }
 
+body.lock-scroll {
+  overflow: hidden;
+}
+
 body {
   background: var(--base-color);
   font-family: var(--font-family-paragraph);
@@ -82,10 +86,14 @@ body {
   transition: opacity 0.35s, visibility 0.35s, height 0.35s;
   overflow: hidden;
   display: none;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   z-index: 20;
+
+  @include breakpoint('small') {
+    justify-content: center;
+  }
 
   &.open {
     opacity: 1;
@@ -93,6 +101,10 @@ body {
     height: 100%;
     display: flex;
     overflow-y: auto;
+
+    @include breakpoint('medium') {
+      overflow-y: hidden;
+    }
   }
 }
 
@@ -118,6 +130,34 @@ body {
 
 html.dark .stack-model-viewer {
   filter: sepia(1) hue-rotate(195deg) saturate(1.8) brightness(1.0);
+}
+
+body.stack-open #toggle-menu-main-mobile {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+
+  @include breakpoint('small') {
+    top: 50px;
+    right: 50px;
+  }
+
+  @include breakpoint('medium') {
+    display: none;
+  }
+}
+
+body.stack-open .stack-modal.open + .stack-modal-close-trigger {
+  display: none;
+
+  @include breakpoint('medium') {
+    display: flex;
+  }
+}
+
+body.stack-open #menu-main-mobile.open {
+  z-index: 30;
 }
 
 .stack-modal-close-trigger {
@@ -183,9 +223,14 @@ html.dark .stack-model-viewer {
 }
 
 .stack-modal-body {
-  max-width: 600px;
+  box-sizing: border-box;
   width: 100%;
-  padding: 60px 24px;
+  padding: 60px 20px 30px;
+
+  @include breakpoint('small') {
+    max-width: 1500px;
+    padding: 80px 50px 30px;
+  }
   text-align: center;
 
   h2 {

@@ -22,29 +22,70 @@
   if (!modal) return;
 
   var closeBtn = document.getElementById('stack-modal-close');
+  var STORAGE_KEY = 'openStackModal';
 
   function openModal() {
+    var menuContainer = document.getElementById('menu-main-mobile');
+    var hamburgerIcon = document.querySelector('.hamburger');
+    if (menuContainer) menuContainer.classList.remove('open');
+    if (hamburgerIcon) hamburgerIcon.classList.remove('is-active');
     modal.classList.add('open');
     document.body.classList.add('lock-scroll');
+    document.body.classList.add('stack-open');
   }
 
   function closeModal() {
     modal.classList.remove('open');
     document.body.classList.remove('lock-scroll');
+    document.body.classList.remove('stack-open');
   }
 
+  function handleClose() {
+    closeModal();
+    if (history.state && history.state.stackModal) {
+      history.back();
+    }
+  }
+
+  // Direct URL /stack/ — redirect to home, open modal there
+  if (window.location.pathname === '/stack/' || window.location.pathname === '/stack') {
+    sessionStorage.setItem(STORAGE_KEY, '1');
+    window.location.replace('/');
+    return;
+  }
+
+  // After redirect from /stack/ — open modal on home page
+  if (sessionStorage.getItem(STORAGE_KEY)) {
+    sessionStorage.removeItem(STORAGE_KEY);
+    history.pushState({ stackModal: true }, '', '/stack/');
+    openModal();
+  }
+
+  // Intercept all link clicks that open the stack modal
   document.addEventListener('click', function(e) {
     var link = e.target.closest('a');
     if (link && link.getAttribute('href') && link.getAttribute('href').indexOf('stack-modal') !== -1) {
       e.preventDefault();
+      history.pushState({ stackModal: true }, '', '/stack/');
       openModal();
     }
   });
 
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (closeBtn) closeBtn.addEventListener('click', handleClose);
 
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') closeModal();
+    if (e.key === 'Escape' && modal.classList.contains('open')) {
+      handleClose();
+    }
+  });
+
+  // Browser back/forward button
+  window.addEventListener('popstate', function() {
+    if (window.location.pathname === '/stack/' || window.location.pathname === '/stack') {
+      openModal();
+    } else {
+      closeModal();
+    }
   });
 })();
 </script>

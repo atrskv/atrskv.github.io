@@ -42,6 +42,10 @@ html, body {
   box-sizing: border-box;
 }
 
+body.lock-scroll {
+  overflow: hidden;
+}
+
 body {
   background: var(--base-color);
   font-family: var(--font-family-paragraph);
@@ -82,10 +86,14 @@ body {
   transition: opacity 0.35s, visibility 0.35s, height 0.35s;
   overflow: hidden;
   display: none;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   flex-direction: column;
   z-index: 20;
+
+  @include breakpoint('small') {
+    justify-content: center;
+  }
 
   &.open {
     opacity: 1;
@@ -183,9 +191,12 @@ html.dark .stack-model-viewer {
 }
 
 .stack-modal-body {
-  max-width: 600px;
   width: 100%;
   padding: 60px 24px;
+
+  @include breakpoint('small') {
+    max-width: 1500px;
+  }
   text-align: center;
 
   h2 {

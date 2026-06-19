@@ -21,6 +21,11 @@
       "image": "images/social/hh.svg"
     },
     {
+      "name": "mail",
+      "url": "mailto:atrskv@ya.ru",
+      "image": "images/social/mail.svg"
+    },
+    {
       "name": "habr career",
       "url": "https://career.habr.com/atrskv",
       "image": "images/social/habr.svg"

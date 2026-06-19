@@ -14,6 +14,16 @@
       "name": "discogs",
       "url": "https://www.discogs.com/ru/user/atrskv/collection",
       "image": "images/social/discogs.svg"
+    },
+    {
+      "name": "hh",
+      "url": "https://hh.ru/resume/f842085fff10ab92700039ed1f4f3057336156",
+      "image": "images/social/hh.svg"
+    },
+    {
+      "name": "habr career",
+      "url": "https://career.habr.com/atrskv",
+      "image": "images/social/habr.svg"
     }
   ]
 }

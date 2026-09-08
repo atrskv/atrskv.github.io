@@ -1,6 +1,6 @@
 ---
 title: QA Automation Engineer
-description: "Последователь context driven testing, работаю в BIOCAD"
+description: "Последователь context driven testing, работаю в Ozon Tech"
 image: "images/author-large.png"
 ---
 
@@ -8,4 +8,4 @@ image: "images/author-large.png"
 
 Делюсь наблюдениями, поддерживаю начинающих
 
-Работаю в <b><a href="https://biocad.ru/" target="_blank" rel="noopener">BIOCAD</a></b>
+Работаю в <b><a href="https://ozon.tech/" target="_blank" rel="noopener">Ozon {ech</a></b>

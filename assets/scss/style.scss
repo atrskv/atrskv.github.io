@@ -67,6 +67,29 @@ body {
   margin: 0 auto;
 }
 
+@keyframes homeFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.page-home {
+  .header,
+  .terminal,
+  .footer {
+    animation: homeFadeIn 0.5s ease both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-home {
+    .header,
+    .terminal,
+    .footer {
+      animation: none;
+    }
+  }
+}
+
 .summary .summary-title {
   font-family: var(--font-family-paragraph);
 }
@@ -117,6 +140,7 @@ body {
 }
 
 .stack-model-viewer {
+  opacity: 0;
   width: 110px;
   height: 110px;
   background: transparent;
@@ -130,6 +154,32 @@ body {
 
 html.dark .stack-model-viewer {
   filter: sepia(1) hue-rotate(195deg) saturate(1.8) brightness(1.0);
+}
+
+.stack-modal.open .stack-model-viewer.is-ready {
+  animation: fadeInTop 0.5s ease 0.1s both;
+}
+
+html.js .author-large .author-image,
+html.js .author-large .author-name,
+html.js .author-large .author-title {
+  opacity: 0;
+}
+
+html.js .author-large .author-image.is-ready,
+html.js .author-large.is-ready .author-name,
+html.js .author-large.is-ready .author-title {
+  animation: fadeInTop 0.5s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack-modal.open .stack-model-viewer.is-ready,
+  html.js .author-large .author-image.is-ready,
+  html.js .author-large.is-ready .author-name,
+  html.js .author-large.is-ready .author-title {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 body.stack-open #toggle-menu-main-mobile {
@@ -239,7 +289,6 @@ body.stack-open #menu-main-mobile.open {
     margin-bottom: 12px;
     margin-top: 32px;
     color: var(--heading-color);
-    animation: fadeInTop 0.5s ease forwards;
     &:first-child { margin-top: 0; }
   }
 
@@ -248,9 +297,29 @@ body.stack-open #menu-main-mobile.open {
     font-size: 18px;
     line-height: 1.7;
     margin: 0 0 8px;
-    animation: fadeInTop 0.5s ease forwards;
-    animation-delay: 0.1s;
+  }
+
+  h1, h2, h3, h4, h5, h6, p {
     opacity: 0;
+  }
+}
+
+.stack-modal.open .stack-modal-body {
+  h1, h2, h3, h4, h5, h6, p {
+    animation: fadeInTop 0.5s ease both;
+  }
+
+  p {
+    animation-delay: 0.1s;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stack-modal.open .stack-modal-body {
+    h1, h2, h3, h4, h5, h6, p {
+      animation: none;
+      opacity: 1;
+    }
   }
 }
 

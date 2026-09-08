@@ -1,5 +1,27 @@
 <script>
 (function() {
+  document.querySelectorAll('.author-large .author-image').forEach(function(img) {
+    function revealAuthor() {
+      if (getComputedStyle(img).display !== 'none') {
+        img.closest('.author-large').classList.add('is-ready');
+      }
+    }
+    function revealAvatar() {
+      var decoded = img.decode ? img.decode() : Promise.resolve();
+      decoded.then(function() {
+        img.classList.add('is-ready');
+        revealAuthor();
+      }).catch(function() {
+        if (img.naturalWidth) img.classList.add('is-ready');
+        revealAuthor();
+      });
+    }
+    img.addEventListener('load', revealAvatar, { once: true });
+    img.addEventListener('error', revealAuthor, { once: true });
+    if (img.complete && img.naturalWidth) revealAvatar();
+    else if (img.complete) revealAuthor();
+  });
+
   var checkbox = document.getElementById('theme-checkbox');
   var favicon = document.getElementById('favicon');
   if (checkbox) {
@@ -20,6 +42,14 @@
 
   var modal = document.getElementById('stack-modal');
   if (!modal) return;
+
+  var model = modal.querySelector('model-viewer');
+  if (model) {
+    model.addEventListener('load', function() {
+      model.classList.add('is-ready');
+    });
+    if (model.loaded) model.classList.add('is-ready');
+  }
 
   var closeBtn = document.getElementById('stack-modal-close');
   var STORAGE_KEY = 'openStackModal';

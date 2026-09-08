@@ -42,6 +42,7 @@
 
   <script>
   (function() {
+    document.documentElement.classList.add('js');
     if (localStorage.getItem('theme') !== 'light') {
       document.documentElement.classList.add('dark');
       document.getElementById('favicon').href = '{{ .Site.BaseURL }}favicon-cat.png';

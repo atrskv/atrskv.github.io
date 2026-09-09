@@ -73,7 +73,9 @@ body {
 }
 
 .page-home {
-  .header,
+  .header-logo,
+  .menu-main,
+  .hamburger,
   .terminal,
   .footer {
     animation: homeFadeIn 0.5s ease both;
@@ -82,7 +84,9 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .page-home {
-    .header,
+    .header-logo,
+    .menu-main,
+    .hamburger,
     .terminal,
     .footer {
       animation: none;

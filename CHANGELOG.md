@@ -1,3 +1,23 @@
+## v1.3.0 (2026-09-22)
+
+### Features
+
+- add neon drive background
+- add debian13 model viewer
+
+### Bug Fixes
+
+- show menu after clicking on stack
+- update animations
+
+### Content
+
+- BIOCAD -> Ozon Tech
+- compress avatar
+- update stack modal
+- add email link
+- add habr & hh logos
+
 ## v1.2.0 (2026-06-05)
 
 ### Feat

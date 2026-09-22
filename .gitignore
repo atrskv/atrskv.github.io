@@ -4,5 +4,4 @@
 .DS_Store
 Thumbs.db
 pyproject.toml
-.cz.toml 
 uv.lock

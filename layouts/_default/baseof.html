@@ -56,6 +56,9 @@
 {{ if eq .Site.Params.addFrame true }}{{ $themeStyle = $themeStyle | append "frame" }}{{ end }}
 
 <body class='page{{ delimit $themeStyle " " }} {{ block "body_classes" . }}{{ end }}'>
+  {{ if .IsHome }}
+    <iframe id="neon-drive-background" src="{{ "vendor/radiant/neon-drive.html" | relURL }}" title="" aria-hidden="true" tabindex="-1" loading="eager"></iframe>
+  {{ end }}
   {{ partial "menu-main-mobile.html" . }}
   <div id="wrapper" class="wrapper">
     {{ partial "header.html" . }}
@@ -81,6 +84,25 @@
   {{ partial "google-analytics.html" . }}
   {{ partial "plausible-analytics.html" . }}
   {{ partial "extend-footer.html" . }}
+
+  {{ if .IsHome }}
+  <script>
+  (function () {
+    var background = document.getElementById('neon-drive-background');
+    window.addEventListener('pageshow', function (event) {
+      if (event.persisted) background.src = background.src;
+    });
+    window.addEventListener('pointermove', function (event) {
+      if (background.contentWindow) {
+        background.contentWindow.postMessage({ type: 'pointer', x: event.clientX, y: event.clientY }, location.origin);
+      }
+    }, { passive: true });
+    document.addEventListener('pointerleave', function () {
+      if (background.contentWindow) background.contentWindow.postMessage({ type: 'pointer' }, location.origin);
+    });
+  })();
+  </script>
+  {{ end }}
 
 </body>
 </html>

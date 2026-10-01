@@ -119,21 +119,27 @@
       box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
 
-    html.dark .line {
+    html.dark .terminal .line {
       color: #cdd6f4;
     }
 
-    html.dark .line.separator {
-      color: #bac2de;
+    html.dark .terminal .line.separator {
+      color: var(--text-color);
     }
 
-    html.dark .passed {
-      color: #a6e3a1 !important;
+    html.dark .terminal .passed {
+      color: #a6e3a1;
     }
 
     html.dark .cursor {
       background-color: #cdd6f4;
     }
+
+    /* Restrained Catppuccin Mocha accents. */
+    html.dark .terminal .highlight-link { color: #b4befe; }
+    html.dark .terminal .mac-buttons .red { background: #f38ba8; }
+    html.dark .terminal .mac-buttons .yellow { background: #f9e2af; }
+    html.dark .terminal .mac-buttons .green { background: #a6e3a1; }
 
     @media (max-width: 600px) {
       .terminal {

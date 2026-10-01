@@ -6,7 +6,7 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge">
   <title>{{ block "title" . }}{{ .Title }} - {{ .Site.Title }}{{ end }}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" id="favicon" href="{{ .Site.BaseURL }}favicon.png">
+  <link rel="icon" id="favicon" type="image/png" href="{{ "favicon.png" | relURL }}" data-light="{{ "favicon.png" | relURL }}" data-dark="{{ "favicon-cat.png" | relURL }}">
   <link rel="canonical" href="{{ .Permalink }}" />
 
   {{- if hugo.IsProduction | or (eq site.Params.env "production") }}
@@ -45,7 +45,8 @@
     document.documentElement.classList.add('js');
     if (localStorage.getItem('theme') !== 'light') {
       document.documentElement.classList.add('dark');
-      document.getElementById('favicon').href = '{{ .Site.BaseURL }}favicon-cat.png';
+      var favicon = document.getElementById('favicon');
+      favicon.href = favicon.dataset.dark;
     }
   })();
   </script>

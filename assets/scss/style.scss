@@ -13,10 +13,10 @@
 html.dark {
   --base-color: #1e1e2e;
   --base-offset-color: #313244;
-  --highlight-color: #cba6f7;
+  --highlight-color: #b4befe;
   --heading-color: #b4befe;
   --text-color: #bac2de;
-  --dot-color: #cba6f7;
+  --dot-color: #b4befe;
 }
 
 $breakpoints: (
@@ -121,9 +121,11 @@ body {
   height: 100vh;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.35s, visibility 0.35s, height 0.35s;
-  overflow: hidden;
-  display: none;
+  pointer-events: none;
+  transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
   justify-content: flex-start;
   align-items: center;
   flex-direction: column;
@@ -133,16 +135,15 @@ body {
     justify-content: center;
   }
 
+  @include breakpoint('medium') {
+    overflow-y: hidden;
+  }
+
   &.open {
     opacity: 1;
     visibility: visible;
-    height: 100%;
-    display: flex;
-    overflow-y: auto;
-
-    @include breakpoint('medium') {
-      overflow-y: hidden;
-    }
+    pointer-events: auto;
+    transition-delay: 0s;
   }
 }
 
@@ -164,6 +165,7 @@ body {
   box-shadow: none;
   display: block;
   --progress-bar-height: 0px;
+  transition: opacity 0.25s ease;
   filter: grayscale(1) brightness(0.06);
 }
 
@@ -172,7 +174,7 @@ html.dark .stack-model-viewer {
 }
 
 .stack-modal.open .stack-model-viewer.is-ready {
-  animation: fadeInTop 0.5s ease 0.1s both;
+  opacity: 1;
 }
 
 html.js .author-large .author-image,
@@ -314,27 +316,23 @@ body.stack-open #menu-main-mobile.open {
     margin: 0 0 8px;
   }
 
-  h1, h2, h3, h4, h5, h6, p {
-    opacity: 0;
-  }
+  transform: translateY(-6px);
+  transition: transform 0.25s ease;
 }
 
 .stack-modal.open .stack-modal-body {
-  h1, h2, h3, h4, h5, h6, p {
-    animation: fadeInTop 0.5s ease both;
-  }
-
-  p {
-    animation-delay: 0.1s;
-  }
+  transform: translateY(0);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .stack-modal.open .stack-modal-body {
-    h1, h2, h3, h4, h5, h6, p {
-      animation: none;
-      opacity: 1;
-    }
+  .stack-modal,
+  .stack-modal-body,
+  .stack-model-viewer {
+    transition: none;
+  }
+
+  .stack-modal-body {
+    transform: none;
   }
 }
 
@@ -393,7 +391,10 @@ html.dark .theme-toggle-thumb {
 
 .author img.author-image-dark { display: none; }
 html.dark .author img.author-image-light { display: none; }
-html.dark .author img.author-image-dark { display: inline-block; }
+html.dark .author img.author-image-dark {
+  display: inline-block;
+  background-color: #181825;
+}
 
 html.dark .author {
   color: var(--text-color);

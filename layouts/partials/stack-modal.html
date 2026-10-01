@@ -6,17 +6,22 @@
   </div>
   <div class="stack-model-wrap">
     <model-viewer
-      src="/models/3dsvg.glb"
+      data-src="{{ "models/3dsvg.glb" | relURL }}"
+      alt="3D-модель"
+      touch-action="pan-y"
       loading="eager"
       reveal="auto"
       camera-controls
       auto-rotate
+      auto-rotate-delay="0"
       rotation-per-second="15deg"
       interaction-prompt="none"
       class="stack-model-viewer"
       background-color="transparent"
       shadow-intensity="0">
     </model-viewer>
+    <p class="stack-model-status" role="status" aria-live="polite">Загрузка 3D-модели…</p>
+    <button class="stack-model-retry" type="button" hidden>Повторить загрузку</button>
   </div>
 </div>
 <div class="stack-modal-close-trigger">

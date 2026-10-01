@@ -1,27 +1,5 @@
 <script>
 (function() {
-  document.querySelectorAll('.author-large .author-image').forEach(function(img) {
-    function revealAuthor() {
-      if (getComputedStyle(img).display !== 'none') {
-        img.closest('.author-large').classList.add('is-ready');
-      }
-    }
-    function revealAvatar() {
-      var decoded = img.decode ? img.decode() : Promise.resolve();
-      decoded.then(function() {
-        img.classList.add('is-ready');
-        revealAuthor();
-      }).catch(function() {
-        if (img.naturalWidth) img.classList.add('is-ready');
-        revealAuthor();
-      });
-    }
-    img.addEventListener('load', revealAvatar, { once: true });
-    img.addEventListener('error', revealAuthor, { once: true });
-    if (img.complete && img.naturalWidth) revealAvatar();
-    else if (img.complete) revealAuthor();
-  });
-
   var checkbox = document.getElementById('theme-checkbox');
   var favicon = document.getElementById('favicon');
   if (checkbox) {
@@ -30,11 +8,11 @@
       if (checkbox.checked) {
         document.documentElement.classList.add('dark');
         localStorage.setItem('theme', 'dark');
-        if (favicon) favicon.href = favicon.href.replace('favicon.png', 'favicon-cat.png');
+        if (favicon) favicon.href = favicon.dataset.dark;
       } else {
         document.documentElement.classList.remove('dark');
         localStorage.setItem('theme', 'light');
-        if (favicon) favicon.href = favicon.href.replace('favicon-cat.png', 'favicon.png');
+        if (favicon) favicon.href = favicon.dataset.light;
       }
       if (typeof DISQUS !== 'undefined') DISQUS.reset({ reload: true });
     });
@@ -44,17 +22,88 @@
   if (!modal) return;
 
   var model = modal.querySelector('model-viewer');
+  var modelStatus = modal.querySelector('.stack-model-status');
+  var modelRetry = modal.querySelector('.stack-model-retry');
+  var modelLibrary;
+  var modelStarting = false;
+
+  function syncModelRotation() {
+    if (!model) return;
+    model.setAttribute('auto-rotate-delay', '0');
+    if (modal.classList.contains('open')) {
+      model.setAttribute('auto-rotate', '');
+    } else {
+      model.removeAttribute('auto-rotate');
+    }
+  }
+
+  function modelFailed(error) {
+    modelStarting = false;
+    modelStatus.textContent = 'Не удалось загрузить 3D-модель';
+    modelStatus.hidden = false;
+    modelRetry.hidden = false;
+    console.error('Stack model failed:', error);
+  }
+
+  function loadModelLibrary() {
+    if (customElements.get('model-viewer')) return Promise.resolve();
+    if (!modelLibrary) {
+      modelLibrary = import('https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js')
+        .catch(function() {
+          return import('https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js');
+        }).catch(function(error) {
+          modelLibrary = null;
+          throw error;
+        });
+    }
+    return modelLibrary;
+  }
+
+  function startModel() {
+    if (!model || model.loaded || modelStarting) return;
+    modelStarting = true;
+    modelRetry.hidden = true;
+    modelStatus.hidden = false;
+    modelStatus.textContent = 'Загрузка 3D-модели…';
+    loadModelLibrary().then(function() {
+      // Start WebGL only after the modal is visible and has a layout.
+      requestAnimationFrame(function() {
+        if (!modal.classList.contains('open')) {
+          modelStarting = false;
+          return;
+        }
+        model.setAttribute('src', model.dataset.src);
+      });
+    }).catch(modelFailed);
+  }
+
   if (model) {
     model.addEventListener('load', function() {
+      modelStarting = false;
+      syncModelRotation();
       model.classList.add('is-ready');
+      modelStatus.hidden = true;
+      modelRetry.hidden = true;
     });
-    if (model.loaded) model.classList.add('is-ready');
+    model.addEventListener('error', function(event) { modelFailed(event.detail); });
+    modelRetry.addEventListener('click', function() {
+      model.removeAttribute('src');
+      startModel();
+    });
+    if (model.loaded) {
+      model.classList.add('is-ready');
+    }
   }
 
   var closeBtn = document.getElementById('stack-modal-close');
   var STORAGE_KEY = 'openStackModal';
+  var savedScrollY = 0;
 
   function openModal() {
+    if (modal.classList.contains('open')) return;
+    savedScrollY = window.scrollY;
+    document.body.style.setProperty('--stack-scroll-top', -savedScrollY + 'px');
+    document.documentElement.classList.add('stack-open');
     var menuContainer = document.getElementById('menu-main-mobile');
     var hamburgerIcon = document.querySelector('.hamburger');
     if (menuContainer) menuContainer.classList.remove('open');
@@ -62,12 +111,19 @@
     modal.classList.add('open');
     document.body.classList.add('lock-scroll');
     document.body.classList.add('stack-open');
+    syncModelRotation();
+    startModel();
   }
 
   function closeModal() {
+    if (!modal.classList.contains('open')) return;
     modal.classList.remove('open');
+    syncModelRotation();
     document.body.classList.remove('lock-scroll');
     document.body.classList.remove('stack-open');
+    document.documentElement.classList.remove('stack-open');
+    document.body.style.removeProperty('--stack-scroll-top');
+    window.scrollTo(0, savedScrollY);
   }
 
   function handleClose() {

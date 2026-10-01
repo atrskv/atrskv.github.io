@@ -4,19 +4,24 @@
       {{ .Content }}
     {{ end }}
   </div>
-  <div class="stack-model-wrap">
+  <div class="stack-model-wrap" aria-busy="true">
     <model-viewer
-      src="/models/3dsvg.glb"
+      data-src="{{ "models/3dsvg.glb" | relURL }}"
+      alt="3D-модель"
+      touch-action="pan-y"
       loading="eager"
       reveal="auto"
       camera-controls
-      auto-rotate
+      auto-rotate-delay="0"
       rotation-per-second="15deg"
       interaction-prompt="none"
       class="stack-model-viewer"
       background-color="transparent"
       shadow-intensity="0">
+      <span slot="progress-bar" hidden></span>
     </model-viewer>
+    <div class="stack-model-status" role="status" aria-label="Загрузка 3D-модели"></div>
+    <button class="stack-model-retry" type="button" aria-label="Не удалось загрузить 3D-модель. Повторить загрузку" title="Повторить загрузку" hidden><span aria-hidden="true">↻</span></button>
   </div>
 </div>
 <div class="stack-modal-close-trigger">

@@ -1,3 +1,13 @@
+## v1.4.0 (2026-10-29)
+
+### Features
+
+- update terminal
+
+### Bug Fixes
+
+- update colors
+
 ## v1.3.0 (2026-09-22)
 
 ### Features

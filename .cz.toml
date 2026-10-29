@@ -1,0 +1,29 @@
+[tool.commitizen]
+name = "cz_customize"
+version = "1.4.0"
+version_scheme = "semver"
+tag_format = "v$version"
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+
+[tool.commitizen.customize]
+message_template = "{{change_type}}: {{message}}"
+example = "feat: add neon drive background"
+schema = "<type>(<optional scope>): <description>"
+schema_pattern = '^(feat|fix|content|refactor|perf|docs|chore|ci|build|test)(\([^\r\n()]+\))?!?:\s.+'
+commit_parser = '^(?P<change_type>feat|fix|content|refactor|perf|docs|chore|ci|build|test|BREAKING CHANGE|BREAKING-CHANGE)(?:\((?P<scope>[^()\r\n]*)\))?(?P<breaking>!)?:\s(?P<message>.*)'
+changelog_pattern = '^(feat|fix|content|refactor|perf|docs|chore|ci|build|test|BREAKING CHANGE|BREAKING-CHANGE)(\([^\r\n()]*\))?!?:'
+change_type_order = ["BREAKING CHANGE", "Features", "Bug Fixes", "Content", "Performance", "Refactoring", "Documentation", "Build", "CI", "Tests", "Chores"]
+change_type_map = {feat = "Features", fix = "Bug Fixes", content = "Content", perf = "Performance", refactor = "Refactoring", docs = "Documentation", build = "Build", ci = "CI", test = "Tests", chore = "Chores", "BREAKING-CHANGE" = "BREAKING CHANGE"}
+
+[[tool.commitizen.customize.questions]]
+type = "list"
+name = "change_type"
+choices = ["feat", "fix", "content", "refactor", "perf", "docs", "chore", "ci", "build", "test"]
+message = "Select the type of change"
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "message"
+message = "Short description"

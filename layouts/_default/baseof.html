@@ -89,16 +89,38 @@
   <script>
   (function () {
     var background = document.getElementById('neon-drive-background');
+    var backgroundMode = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'paused' : 'running';
+    try {
+      var savedMode = localStorage.getItem('backgroundMode');
+      if (['running', 'paused', 'off'].indexOf(savedMode) !== -1) backgroundMode = savedMode;
+    } catch (error) { /* The controls also work without browser storage. */ }
+    function syncBackground() {
+      background.dataset.mode = backgroundMode;
+      background.hidden = backgroundMode === 'off';
+      if (background.contentWindow) {
+        background.contentWindow.postMessage({ type: 'background-mode', mode: backgroundMode }, location.origin);
+      }
+    }
+    window.siteBackground = {
+      setMode: function (mode) {
+        if (['running', 'paused', 'off'].indexOf(mode) === -1) return;
+        backgroundMode = mode;
+        try { localStorage.setItem('backgroundMode', mode); } catch (error) { /* Optional persistence. */ }
+        syncBackground();
+      }
+    };
+    background.addEventListener('load', syncBackground);
+    syncBackground();
     window.addEventListener('pageshow', function (event) {
       if (event.persisted) background.src = background.src;
     });
     window.addEventListener('pointermove', function (event) {
-      if (background.contentWindow) {
+      if (backgroundMode === 'running' && background.contentWindow) {
         background.contentWindow.postMessage({ type: 'pointer', x: event.clientX, y: event.clientY }, location.origin);
       }
     }, { passive: true });
     document.addEventListener('pointerleave', function () {
-      if (background.contentWindow) background.contentWindow.postMessage({ type: 'pointer' }, location.origin);
+      if (backgroundMode === 'running' && background.contentWindow) background.contentWindow.postMessage({ type: 'pointer' }, location.origin);
     });
   })();
   </script>

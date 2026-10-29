@@ -395,28 +395,61 @@
     }
   }
 
+  var mode = window.frameElement && window.frameElement.dataset.mode;
+  if (['running', 'paused', 'off'].indexOf(mode) === -1) mode = prefersReduced ? 'paused' : 'running';
+  var frameId = null;
+  var elapsed = 0;
+  var previousTime = null;
+
+  function scheduleFrame() {
+    if (frameId === null && mode !== 'off' && !document.hidden) {
+      frameId = requestAnimationFrame(render);
+    }
+  }
   function render(now) {
+    frameId = null;
+    if (mode === 'off' || document.hidden) return;
     if (needsResize) resize();
-    gl.uniform1f(uTime, prefersReduced ? 0.0 : now * 0.00019);
+    if (mode === 'running' && previousTime !== null) elapsed += now - previousTime;
+    previousTime = mode === 'running' ? now : null;
+    gl.uniform1f(uTime, elapsed * 0.00019);
     gl.uniform1f(uSpeed, speedVal);
     gl.uniform1f(uGlow, glowVal);
     gl.uniform1f(uLight, isLight() ? 1.0 : 0.0);
     gl.uniform2f(uMouse, mouseXVal, mouseYVal);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    requestAnimationFrame(render);
+    if (mode === 'running') scheduleFrame();
   }
-
+  function setMode(nextMode) {
+    if (['running', 'paused', 'off'].indexOf(nextMode) === -1) return;
+    mode = nextMode;
+    needsResize = true;
+    if (frameId !== null) cancelAnimationFrame(frameId);
+    frameId = null;
+    previousTime = null;
+    scheduleFrame();
+  }
   window.addEventListener('resize', function () {
     needsResize = true;
+    scheduleFrame();
   });
-
+  document.addEventListener('visibilitychange', function () {
+    if (frameId !== null) cancelAnimationFrame(frameId);
+    frameId = null;
+    previousTime = null;
+    scheduleFrame();
+  });
+  // A paused scene still follows the site's theme without starting a loop.
+  new MutationObserver(scheduleFrame).observe(window.parent.document.documentElement, {
+    attributes: true, attributeFilter: ['class']
+  });
   resize();
-
-  requestAnimationFrame(render);
+  scheduleFrame();
 
   window.addEventListener('message', function(e) {
-    if (e.origin !== location.origin) return;
-    if (e.data && e.data.type === 'pointer') {
+    if (e.origin !== location.origin || e.source !== window.parent) return;
+    if (e.data && e.data.type === 'background-mode') setMode(e.data.mode);
+    if (mode === 'running' && e.data && e.data.type === 'pointer') {
       if (typeof e.data.x === 'number' && typeof e.data.y === 'number') {
         mouseXVal = e.data.x * dpr;
         mouseYVal = (canvas.clientHeight - e.data.y) * dpr;
@@ -430,6 +463,7 @@
         case 'speed': speedVal = e.data.value; break;
         case 'glow': glowVal = e.data.value; break;
       }
+      scheduleFrame();
     }
   });
 })();

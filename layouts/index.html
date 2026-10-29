@@ -5,386 +5,164 @@
     {{ partial "author-large.html" . }}
   {{ end }}
 
-  <div class="terminal" id="terminal">
-    <div class="mac-buttons">
-      <div class="red"></div>
-      <div class="yellow"></div>
-      <div class="green"></div>
+  <section class="visitor-terminal" aria-label="Интерактивный терминал">
+    <div class="terminal" id="terminal" data-prompt="$">
+      <div class="terminal-bar" aria-hidden="true">
+        <span class="terminal-lights"><i></i><i></i><i></i></span>
+      </div>
+      <div class="terminal-screen" id="terminal-screen" tabindex="0" aria-label="История терминала">
+        <div id="terminal-output" role="log" aria-label="Ответы терминала" aria-live="polite" aria-relevant="additions"></div>
+        <form class="terminal-input-row" id="terminal-form" autocomplete="off" hidden>
+          <label for="terminal-input" class="terminal-prompt">$</label>
+          <span class="terminal-entry">
+            <input id="terminal-input" name="command" type="text" aria-label="Команда терминала. Введите help, чтобы узнать команды" placeholder=" " autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" enterkeyhint="send">
+            <span class="terminal-placeholder" aria-hidden="true"><span id="terminal-suggestion"></span><span class="terminal-caret"></span></span>
+          </span>
+        </form>
+      </div>
     </div>
-    <div id="content" class="terminal-content">
-      <div class="line">$ <span class="typed"></span><span class="cursor"></span></div>
-    </div>
-  </div>
-
+    <noscript><div class="terminal-noscript">{{ .Content }}<p>Для ввода команд нужен JavaScript.</p></div></noscript>
+  </section>
   <style>
-    .terminal {
-      background: white;
-      color: black;
-      border: 1px solid #ccc;
-      border-radius: 12px;
-      padding: 20px 20px 30px;
-      width: 100%;
-      box-sizing: border-box;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
-      line-height: 1.4;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      font-family: 'Fira Code', monospace;
-      font-size: 16px;
-      margin-top: 30px;
-      overflow-x: auto;
-      white-space: pre-wrap;
-      word-break: break-word;
-      overflow-wrap: anywhere;
-    }
+.visitor-terminal {
+  --terminal-bg: #fff;
+  --terminal-border: #ccc;
+  --terminal-ink: #000;
+  --terminal-muted: #626273;
+  --terminal-accent: #000;
+  --terminal-success: #247441;
+  --terminal-inset: 20px;
+  --terminal-line-height: 1.5;
+  --terminal-command-gap: 8px;
+  --terminal-prompt-gap: 1ch;
+  margin-top: 30px;
+}
+html.dark .visitor-terminal {
+  --terminal-bg: #181825;
+  --terminal-border: #313244;
+  --terminal-ink: #cdd6f4;
+  --terminal-muted: #a6adc8;
+  --terminal-accent: #b4befe;
+  --terminal-success: #a6e3a1;
+}
+.visitor-terminal .terminal {
+  background: var(--terminal-bg);
+  color: var(--terminal-ink);
+  border: 1px solid var(--terminal-border);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0, 0, 0, .1);
+  position: relative;
+  padding: var(--terminal-inset);
+  width: 100%;
+  box-sizing: border-box;
+  font: 16px/var(--terminal-line-height) 'Fira Code', monospace;
+}
+html.dark .visitor-terminal .terminal { box-shadow: 0 0 20px rgba(0, 0, 0, .4); }
+.visitor-terminal .terminal-bar { position: absolute; top: var(--terminal-inset); left: var(--terminal-inset); }
+.visitor-terminal .terminal-lights { display: flex; gap: 8px; }
+.visitor-terminal .terminal-lights i { width: 12px; height: 12px; border-radius: 50%; background: #ff5f56; }
+.visitor-terminal .terminal-lights i:nth-child(2) { background: #ffbd2e; }
+.visitor-terminal .terminal-lights i:nth-child(3) { background: #27c93f; }
+html.dark .visitor-terminal .terminal-lights i { background: #f38ba8; }
+html.dark .visitor-terminal .terminal-lights i:nth-child(2) { background: #f9e2af; }
+html.dark .visitor-terminal .terminal-lights i:nth-child(3) { background: #a6e3a1; }
+.visitor-terminal .terminal-screen {
+  box-sizing: border-box;
+  height: clamp(260px, 48vh, 420px);
+  min-height: 0;
+  margin-top: calc(12px + var(--terminal-inset));
+  max-height: none;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 0;
+  scrollbar-color: var(--terminal-border) var(--terminal-bg);
+}
+.visitor-terminal .terminal-input-row[hidden] { display: none; }
+.visitor-terminal .terminal-input-row { display: flex; align-items: baseline; gap: var(--terminal-prompt-gap); margin: 0; padding: 0; }
+.visitor-terminal .terminal-prompt { flex-shrink: 0; color: var(--terminal-ink); font-weight: normal; }
+.visitor-terminal .terminal-entry { position: relative; display: block; flex: 1; min-width: 0; }
+.visitor-terminal .terminal-placeholder {
+  position: absolute; left: 0; top: 0; display: inline-flex; align-items: center;
+  height: 100%; pointer-events: none; color: var(--terminal-ink); white-space: pre;
+}
+.visitor-terminal .terminal-caret {
+  display: inline-block; width: 1ch; height: 1em;
+  pointer-events: none; background: var(--terminal-ink);
+  animation: terminal-blink 1s step-start infinite;
+}
+.visitor-terminal #terminal-input:not(:placeholder-shown) + .terminal-placeholder { display: none; }
+.visitor-terminal #terminal-input:placeholder-shown { caret-color: transparent; }
+.visitor-terminal #terminal-input {
+  display: block;
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--terminal-ink);
+  caret-color: var(--terminal-accent);
+  font: inherit;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+.visitor-terminal #terminal-input:focus { outline: none; }
+.visitor-terminal #terminal-output, .visitor-terminal .terminal-run { display: flow-root; }
+.visitor-terminal .terminal-line {
+  margin: 0;
+  line-height: var(--terminal-line-height);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.visitor-terminal .terminal-command {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: var(--terminal-prompt-gap);
+  margin-top: var(--terminal-command-gap);
+  margin-bottom: var(--terminal-command-gap);
+}
+.visitor-terminal #terminal-output > .terminal-command:first-child,
+.visitor-terminal .terminal-run > .terminal-command:first-child { margin-top: 0; }
+.visitor-terminal #terminal-output:not(:empty) { padding-bottom: var(--terminal-command-gap); }
+.visitor-terminal .terminal-empty-command { margin-bottom: 0; }
+.visitor-terminal .terminal-empty-command + .terminal-command { margin-top: 0; }
+.visitor-terminal #terminal-output:has(> .terminal-empty-command:last-child) { padding-bottom: 0; }
+.visitor-terminal .terminal-success { color: var(--terminal-success); }
+.visitor-terminal .terminal-test-result { color: var(--terminal-success); font-weight: bold; }
+.visitor-terminal .terminal-line:empty { min-height: 1.5em; }
+.visitor-terminal .terminal-muted { color: var(--terminal-muted); }
+.visitor-terminal .terminal-line a { color: var(--terminal-accent); font-weight: bold; text-decoration: underline; }
+.visitor-terminal .terminal-source { text-align: center; margin-top: var(--terminal-command-gap); }
+.visitor-terminal .terminal-separator { display: flex; align-items: center; gap: var(--terminal-prompt-gap); color: var(--terminal-ink); font-weight: bold; margin: 0; }
+.visitor-terminal .terminal-separator::before, .visitor-terminal .terminal-separator::after { content: '========================================'; overflow: hidden; white-space: nowrap; min-width: 0; flex: 1; }
+.visitor-terminal .terminal-screen:focus-visible { outline: 2px solid var(--terminal-accent); outline-offset: 3px; }
+.visitor-terminal .terminal-noscript { margin-top: 20px; }
+@media (max-width: 600px) {
+  .visitor-terminal .terminal-screen { height: 300px; height: min(300px, 50svh); }
+  .visitor-terminal { --terminal-inset: 16px; }
+}
+@media (max-width: 480px) {
+  .visitor-terminal .terminal-screen { padding: 0; }
+  .visitor-terminal #terminal-input, .visitor-terminal .terminal-placeholder { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .visitor-terminal * { transition: none !important; }
+}
 
-    .terminal-content {
-      width: 100%;
-      display: flex;
-      flex-direction: column;
-      margin-top: 30px;
-      flex-grow: 1;
-    }
-
-    .mac-buttons {
-      position: absolute;
-      top: 10px;
-      left: 12px;
-      display: flex;
-      gap: 8px;
-    }
-
-    .mac-buttons div {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-    }
-
-    .red { background: #ff5f56; }
-    .yellow { background: #ffbd2e; }
-    .green { background: #27c93f; }
-
-    .line {
-      display: block;
-      margin: 2px 0;
-      color: black;
-      font-family: var(--font-family-monospace, monospace);
-      font-size: 16px;
-      white-space: pre-wrap;
-    }
-
-    .line.separator {
-      white-space: nowrap;
-      font-weight: bold;
-      user-select: none;
-      color: black;
-      margin: 8px 0;
-      text-align: center;
-    }
-
-    .passed {
-      color: green;
-      font-weight: bold;
-    }
-
-    .cursor {
-      display: inline-block;
-      width: 8px;
-      height: 1em;
-      background-color: black;
-      vertical-align: bottom;
-      margin-left: 2px;
-      animation: blink 1s step-start infinite;
-    }
-
-    @keyframes blink {
-      50% { background-color: transparent; }
-    }
-
-    .highlight-link {
-      font-weight: bold;
-      color: var(--highlight-color);
-      text-decoration: none;
-    }
-
-    .highlight-link:hover {
-      text-decoration: underline;
-    }
-
-    html.dark .terminal {
-      background: #181825;
-      color: #cdd6f4;
-      border-color: #313244;
-      box-shadow: 0 0 20px rgba(0,0,0,0.4);
-    }
-
-    html.dark .terminal .line {
-      color: var(--text-color);
-    }
-
-    html.dark .terminal .line.separator {
-      color: var(--text-color);
-    }
-
-    html.dark .terminal .passed {
-      color: #a6e3a1;
-    }
-
-    html.dark .cursor {
-      background-color: #cdd6f4;
-    }
-
-    /* Restrained Catppuccin Mocha accents. */
-    html.dark .terminal .highlight-link { color: var(--highlight-color); }
-    html.dark .terminal .mac-buttons .red { background: #f38ba8; }
-    html.dark .terminal .mac-buttons .yellow { background: #f9e2af; }
-    html.dark .terminal .mac-buttons .green { background: #a6e3a1; }
-
-    @media (max-width: 600px) {
-      .terminal {
-        font-size: 14px;
-        padding: 15px 15px 25px;
-      }
-      .cursor {
-        width: 6px;
-      }
-    }
+.visitor-terminal .terminal-typing::after {
+  content: ''; display: inline-block; width: 1ch; height: 1em;
+  margin-left: 0; vertical-align: text-bottom;
+  background: var(--terminal-ink); animation: terminal-blink 1s step-start infinite;
+}
+@keyframes terminal-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .visitor-terminal .terminal-typing::after, .visitor-terminal .terminal-caret { animation: none; } }
   </style>
-
-  <script>
-    class TerminalSimulator {
-      constructor() {
-        this.commands = [
-          {
-            cmd: 'cat README.md',
-            output: [
-              'Следую <a href="https://context-driven-testing.com/" class="highlight-link">context driven testing</a>,',
-              'сосредоточен на повышении качества продукта с учетом его специфики — постоянно анализирую и совершенствую процессы, внедряя наиболее подходящие практики тестирования',
-              'Делюсь наблюдениями, поддерживаю начинающих',
-            ],
-            instantOutput: true
-          },
-          {
-            cmd: 'pytest . -v --alluredir=allure-results',
-            output: [
-              '',
-              this.createSeparator('test session starts'),
-              'platform darwin -- Python 3.13.3, pytest-8.4.2, pluggy-1.6.0',
-              'rootdir: /Users/atrskv/projects/project-tests',
-              'configfile: pyproject.toml',
-              'plugins: allure-pytest-2.15.0, Faker-37.6.0',
-              'collected 1 item',
-              '',
-              'tests/test_example.py::test_example_case PASSED',
-              '',
-              this.createSeparator('1 passed in 0.04s'),
-              ''
-            ],
-            instantOutput: false
-          }
-        ];
-
-        this.commandIndex = 0;
-        this.charIndex = 0;
-        this.charWidth = null;
-        this.resizeObserver = null;
-
-        this.init();
-      }
-
-      init() {
-        this.startTyping();
-        this.setupResizeObserver();
-      }
-
-      createSeparator(text) {
-        return `__SEPARATOR_START__${text}__SEPARATOR_END__`;
-      }
-
-      getCharWidth() {
-        if (this.charWidth) return this.charWidth;
-
-        const testSpan = document.createElement('span');
-        testSpan.style.cssText = `
-          font-family: monospace;
-          font-size: 16px;
-          position: absolute;
-          visibility: hidden;
-        `;
-        testSpan.textContent = 'A';
-        document.body.appendChild(testSpan);
-        this.charWidth = testSpan.getBoundingClientRect().width;
-        document.body.removeChild(testSpan);
-
-        return this.charWidth;
-      }
-
-      getTerminalWidthInChars() {
-        const term = document.getElementById('terminal');
-        const style = window.getComputedStyle(term);
-        const termWidthPx = term.getBoundingClientRect().width;
-        const paddingLeft = parseFloat(style.paddingLeft) || 0;
-        const paddingRight = parseFloat(style.paddingRight) || 0;
-        const availableWidth = termWidthPx - paddingLeft - paddingRight;
-        const charWidth = this.getCharWidth();
-
-        return Math.max(0, Math.floor(availableWidth / charWidth));
-      }
-
-      makeSeparatorLine(text) {
-        const totalLength = this.getTerminalWidthInChars();
-        const textWithSpaces = ` ${text} `;
-
-        if (textWithSpaces.length >= totalLength) {
-          return text;
-        }
-
-        const sideLen = Math.floor((totalLength - textWithSpaces.length) / 2);
-        const left = '='.repeat(Math.max(0, sideLen));
-        const right = '='.repeat(Math.max(0, totalLength - textWithSpaces.length - sideLen));
-
-        return left + textWithSpaces + right;
-      }
-
-      createLineElement(content, className = '') {
-        const div = document.createElement('div');
-        div.className = `line ${className}`.trim();
-
-        if (content.startsWith('__SEPARATOR_START__') && content.endsWith('__SEPARATOR_END__')) {
-          const text = content.replace('__SEPARATOR_START__', '').replace('__SEPARATOR_END__', '');
-          div.classList.add('separator');
-          div.textContent = this.makeSeparatorLine(text);
-
-          div.dataset.originalText = text;
-        } else if (content.includes('PASSED')) {
-          div.innerHTML = content.replace('PASSED', '<span class="passed">PASSED</span>');
-        } else {
-          div.innerHTML = content;
-        }
-
-        return div;
-      }
-
-      scrollToBottom() {
-        const term = document.getElementById('terminal');
-        term.scrollTop = term.scrollHeight;
-      }
-
-      createInputLine() {
-        const div = document.createElement('div');
-        div.className = 'line';
-        div.innerHTML = '$ <span class="typed"></span><span class="cursor"></span>';
-        return div;
-      }
-
-      typeCommand() {
-        const currentCommand = this.commands[this.commandIndex];
-        const currentLineSpan = document.querySelector('#content .line:last-child .typed');
-        const currentCursor = document.querySelector('#content .line:last-child .cursor');
-
-        if (!currentLineSpan) {
-          console.error('Current line span not found');
-          return;
-        }
-
-        if (this.charIndex < currentCommand.cmd.length) {
-          currentLineSpan.textContent += currentCommand.cmd[this.charIndex];
-          this.charIndex++;
-          setTimeout(() => this.typeCommand(), 40);
-          this.scrollToBottom();
-        } else {
-          currentCursor?.remove();
-          setTimeout(() => {
-            currentCommand.instantOutput
-              ? this.showOutputInstant(currentCommand.output)
-              : this.showOutput(currentCommand.output);
-          }, 400);
-        }
-      }
-
-      showOutputInstant(lines) {
-        lines.forEach(line => {
-          const element = this.createLineElement(line);
-          document.getElementById('content').appendChild(element);
-        });
-
-        this.scrollToBottom();
-        this.nextCommand();
-      }
-
-      showOutput(lines) {
-        let outputIndex = 0;
-
-        const processNextLine = () => {
-          if (outputIndex >= lines.length) {
-            this.nextCommand();
-            return;
-          }
-
-          const line = lines[outputIndex];
-          const element = this.createLineElement(line);
-          document.getElementById('content').appendChild(element);
-          this.scrollToBottom();
-
-          outputIndex++;
-
-          if (outputIndex < lines.length) {
-            setTimeout(processNextLine, 80);
-          } else {
-            this.nextCommand();
-          }
-        };
-
-        processNextLine();
-      }
-
-      nextCommand() {
-        if (this.commandIndex < this.commands.length - 1) {
-          this.commandIndex++;
-          this.charIndex = 0;
-
-          const inputLine = this.createInputLine();
-          document.getElementById('content').appendChild(inputLine);
-
-          setTimeout(() => this.typeCommand(), 300);
-        }
-      }
-
-      updateSeparators() {
-        const separators = document.querySelectorAll('.line.separator');
-        separators.forEach(div => {
-          const originalText = div.dataset.originalText;
-          if (originalText) {
-            div.textContent = this.makeSeparatorLine(originalText);
-          }
-        });
-      }
-
-      setupResizeObserver() {
-        this.resizeObserver = new ResizeObserver(() => {
-          this.updateSeparators();
-        });
-
-        const terminal = document.getElementById('terminal');
-        if (terminal) {
-          this.resizeObserver.observe(terminal);
-        }
-      }
-
-      startTyping() {
-        this.typeCommand();
-      }
-
-      destroy() {
-        this.resizeObserver?.disconnect();
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      window.terminalSimulator = new TerminalSimulator();
-    });
-  </script>
 {{ end }}
 
-{{ define "footer_js" }}{{ end }}
+{{ define "footer_js" }}
+  {{ $terminal := resources.Get "js/terminal.js" }}
+  <script>{{ $terminal.Content | safeJS }}</script>
+{{ end }}

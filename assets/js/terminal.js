@@ -124,6 +124,7 @@
       activeRun.abort();
       activeRun = null;
       form.hidden = false;
+      if (document.activeElement === screen) input.focus({ preventScroll: true });
     }
   }
   function printReadme(target = output) {
@@ -164,12 +165,14 @@
     if (activeRun) return;
     clearSuggestion();
     const run = new AbortController();
+    const hadInputFocus = document.activeElement === input;
     const group = document.createElement('div');
     group.className = 'terminal-run';
     group.setAttribute('aria-busy', 'true');
     output.append(group);
     activeRun = run;
     form.hidden = true;
+    if (hadInputFocus) screen.focus({ preventScroll: true });
     scroll(true);
     try { await task(run.signal, group); }
     catch (error) {
@@ -182,6 +185,7 @@
       if (activeRun === run) {
         activeRun = null;
         form.hidden = false;
+        if (hadInputFocus && document.activeElement === screen) input.focus({ preventScroll: true });
         scroll();
       }
     }
@@ -344,18 +348,21 @@
   form.addEventListener('submit', event => {
     event.preventDefault();
     execute(input.value);
-    input.focus({ preventScroll: true });
+    if (!form.hidden) input.focus({ preventScroll: true });
   });
-  input.addEventListener('keydown', event => {
+  terminal.addEventListener('keydown', event => {
+    if (event.target !== input && event.target !== screen) return;
     scheduleSuggestion();
-    if (event.isComposing) return;
+    if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
       if (!history.length) return;
       if (historyIndex === history.length) draft = input.value;
       historyIndex = Math.max(0, Math.min(history.length, historyIndex + (event.key === 'ArrowUp' ? -1 : 1)));
       input.value = historyIndex === history.length ? draft : history[historyIndex];
+      if (!form.hidden) input.focus({ preventScroll: true });
       input.setSelectionRange(input.value.length, input.value.length);
+      scroll(true);
       scheduleSuggestion();
     }
   });

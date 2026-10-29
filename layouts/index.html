@@ -139,6 +139,7 @@ html.dark .visitor-terminal .terminal-lights i:nth-child(3) { background: #a6e3a
 .visitor-terminal .terminal-separator { display: flex; align-items: center; gap: var(--terminal-prompt-gap); color: var(--terminal-ink); font-weight: bold; margin: 0; }
 .visitor-terminal .terminal-separator::before, .visitor-terminal .terminal-separator::after { content: '========================================'; overflow: hidden; white-space: nowrap; min-width: 0; flex: 1; }
 .visitor-terminal .terminal-screen:focus-visible { outline: 2px solid var(--terminal-accent); outline-offset: 3px; }
+.visitor-terminal .terminal-screen:focus:has(.terminal-run[aria-busy="true"]) { outline: none; }
 .visitor-terminal .terminal-noscript { margin-top: 20px; }
 @media (max-width: 600px) {
   .visitor-terminal .terminal-screen { height: 300px; height: min(300px, 50svh); }

@@ -162,7 +162,11 @@
     image.className = 'terminal-leetcode-stats';
     image.alt = 'LeetCode Stats — atrskv';
     image.decoding = 'async';
-    image.addEventListener('load', () => scroll());
+    image.addEventListener('load', () => {
+      requestAnimationFrame(() => {
+        if (card.isConnected) scroll(true);
+      });
+    });
     image.addEventListener('error', () => {
       link.href = 'https://leetcode.com/u/atrskv/';
       link.textContent = 'leetcode: не удалось загрузить статистику. Открыть профиль atrskv';
@@ -237,6 +241,7 @@
     "ls                        содержимое каталога",
     "pwd                       текущий каталог",
     "cat <file>                чтение файла",
+    "Tab                       дополнение имени файла после cat",
     "help                      справка по командам",
     "leetcode                  статистика LeetCode",
     "zen                       The Zen of Python",
@@ -279,6 +284,24 @@
     ['ZEN.md', printZen],
     ['CONTEXT-DRIVEN-TESTING-PRINCIPLES.md', printPrinciples]
   ]);
+  function completeFilename() {
+    if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) return false;
+    const match = input.value.match(/^(\s*cat\s+)(\.\/)?(\S*)$/i);
+    if (!match) return false;
+    const prefix = match[3].toUpperCase();
+    const matches = [...files.keys()].filter(name => name.toUpperCase().startsWith(prefix));
+    if (!matches.length) return false;
+    if (matches.length === 1) {
+      const start = match[1].length + (match[2]?.length || 0);
+      input.setRangeText(matches[0], start, input.value.length, 'end');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      commandLine(input.value);
+      line(matches.join('\n'), 'terminal-file');
+    }
+    scroll(true);
+    return true;
+  }
   function cat(filename) {
     const name = filename.replace(/^\.\//, '').toUpperCase();
     const file = [...files.keys()].find(key => key.toUpperCase() === name);
@@ -391,6 +414,10 @@
     if (event.target !== input && event.target !== screen) return;
     scheduleSuggestion();
     if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (event.key === 'Tab' && event.target === input && completeFilename()) {
+      event.preventDefault();
+      return;
+    }
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
       if (!history.length) return;

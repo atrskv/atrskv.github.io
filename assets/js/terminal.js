@@ -18,7 +18,7 @@
   let helpDiscovered = false;
   let suggestionIndex = 0;
   const suggestionCommands = [
-    'help', 'ls', 'pwd', 'cat HELP.md', 'cdt', 'zen', 'cat ZEN.md',
+    'help', 'ls', 'pwd', 'cat HELP.md', 'leetcode', 'cdt', 'zen', 'cat ZEN.md',
     'cat CONTEXT-DRIVEN-TESTING-PRINCIPLES.md',
     'pytest', 'pytest .', 'pytest . -v', 'python -m pytest',
     'theme light', 'theme dark', 'bg pause', 'bg resume',
@@ -138,6 +138,41 @@
     line('сосредоточен на повышении качества продукта с учетом его специфики — постоянно анализирую и совершенствую процессы, внедряя наиболее подходящие практики тестирования', '', target);
     line('Делюсь наблюдениями, поддерживаю начинающих', '', target);
   }
+  function leetcodeCardUrl() {
+    const theme = document.documentElement.classList.contains('dark') ? 'tokyonight' : 'github_light';
+    return `https://www.readmecodegen.com/api/leetcode-stats?username=atrskv&theme=${theme}`;
+  }
+  function updateLeetcodeCards() {
+    const src = leetcodeCardUrl();
+    output.querySelectorAll('.terminal-leetcode-stats').forEach(image => {
+      if (image.src !== src) image.src = src;
+    });
+  }
+  new MutationObserver(updateLeetcodeCards).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['class']
+  });
+  function printLeetcode() {
+    const card = line('', 'terminal-card');
+    const link = document.createElement('a');
+    link.href = 'https://www.readmecodegen.com/leetcode-stats-generator/leetcode-stats-card-generator-for-github';
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    const image = document.createElement('img');
+    image.className = 'terminal-leetcode-stats';
+    image.alt = 'LeetCode Stats — atrskv';
+    image.decoding = 'async';
+    image.addEventListener('load', () => scroll());
+    image.addEventListener('error', () => {
+      link.href = 'https://leetcode.com/u/atrskv/';
+      link.textContent = 'leetcode: не удалось загрузить статистику. Открыть профиль atrskv';
+      scroll();
+    }, { once: true });
+    link.append(image);
+    card.append(link);
+    image.src = leetcodeCardUrl();
+    scroll();
+  }
   async function pytest(signal, target) {
     const report = [
       ['test session starts', 'terminal-separator'],
@@ -203,6 +238,7 @@
     "pwd                       текущий каталог",
     "cat <file>                чтение файла",
     "help                      справка по командам",
+    "leetcode                  статистика LeetCode",
     "zen                       The Zen of Python",
     "cdt                       принципы Context-Driven Testing",
     "pytest [options] [path]   запуск тест-кейсов",
@@ -289,6 +325,7 @@
     else if (normalized === 'cat' || normalized.startsWith('cat ')) cat(command.replace(/^cat\s*/i, '').trim());
     else if (/^(?:pytest|py\.test|python(?:3)? -m pytest)(?: |$)/.test(normalized)) await runAnimation(pytest);
     else if (normalized === 'help') help();
+    else if (normalized === 'leetcode') printLeetcode();
     else if (normalized === 'zen') printZen();
     else if (normalized === 'cdt') printPrinciples();
     else if (normalized === 'bg pause') background('paused');

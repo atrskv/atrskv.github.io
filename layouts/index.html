@@ -135,6 +135,9 @@ html.dark .visitor-terminal .terminal-lights i:nth-child(3) { background: #a6e3a
 .visitor-terminal .terminal-line:empty { min-height: 1.5em; }
 .visitor-terminal .terminal-muted { color: var(--terminal-muted); }
 .visitor-terminal .terminal-line a { color: var(--terminal-accent); font-weight: bold; text-decoration: underline; }
+.visitor-terminal .terminal-card { margin: var(--terminal-command-gap) 0; white-space: normal; }
+.visitor-terminal .terminal-card a { display: block; width: fit-content; max-width: 100%; }
+.visitor-terminal .terminal-card img { display: block; max-width: 100%; height: auto; }
 .visitor-terminal .terminal-source { text-align: center; margin-top: var(--terminal-command-gap); }
 .visitor-terminal .terminal-separator { display: flex; align-items: center; gap: var(--terminal-prompt-gap); color: var(--terminal-ink); font-weight: bold; margin: 0; }
 .visitor-terminal .terminal-separator::before, .visitor-terminal .terminal-separator::after { content: '========================================'; overflow: hidden; white-space: nowrap; min-width: 0; flex: 1; }

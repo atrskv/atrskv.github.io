@@ -15,7 +15,7 @@
         <form class="terminal-input-row" id="terminal-form" autocomplete="off" hidden>
           <label for="terminal-input" class="terminal-prompt">$</label>
           <span class="terminal-entry">
-            <input id="terminal-input" name="command" type="text" aria-label="Команда терминала. Введите help, чтобы узнать команды" placeholder=" " autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" enterkeyhint="send">
+            <input id="terminal-input" name="command" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" aria-label="Команда терминала. Введите help, чтобы узнать команды" placeholder=" " autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="200" enterkeyhint="send">
             <span class="terminal-placeholder" aria-hidden="true"><span id="terminal-suggestion"></span><span class="terminal-caret"></span></span>
           </span>
         </form>
@@ -110,6 +110,16 @@ html.dark .visitor-terminal .terminal-lights i:nth-child(3) { background: #a6e3a
   box-sizing: border-box;
 }
 .visitor-terminal #terminal-input:focus { outline: none; }
+.visitor-terminal .terminal-completions { display: flex; flex-wrap: wrap; gap: .25em 1ch; margin: .5em 0; padding-left: 2ch; }
+.visitor-terminal .terminal-completions [role="option"] {
+  appearance: none; display: block; margin: 0; padding: .125em .5ch;
+  border: 0; border-radius: 2px; background: transparent; color: var(--terminal-ink);
+  font: inherit; line-height: inherit; text-transform: none; letter-spacing: normal;
+  white-space: pre-wrap; overflow-wrap: anywhere; max-width: 100%; cursor: pointer; box-shadow: none;
+}
+.visitor-terminal .terminal-completions [role="option"]:hover,
+.visitor-terminal .terminal-completions [aria-selected="true"] { background: var(--terminal-ink); color: var(--terminal-bg); }
+
 .visitor-terminal #terminal-output, .visitor-terminal .terminal-run { display: flow-root; }
 .visitor-terminal .terminal-line {
   margin: 0;

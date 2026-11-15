@@ -20,7 +20,7 @@
   const suggestionCommands = [
     'help', 'ls', 'pwd', 'cat HELP.md', 'leetcode', 'exp', 'cat WORK_EXPERIENCE.md', 'cdt', 'zen', 'cat ZEN.md',
     'cat CONTEXT_DRIVEN_TESTING_PRINCIPLES.md',
-    'pytest', 'pytest .', 'pytest . -v', 'python -m pytest',
+    'pytest', 'pytest .', 'pytest . -v',
     'theme light', 'theme dark', 'bg pause', 'bg resume',
     'bg off', 'bg on', 'clear'
   ];
@@ -400,21 +400,100 @@
     ['ZEN.md', printZen],
     ['CONTEXT_DRIVEN_TESTING_PRINCIPLES.md', printPrinciples]
   ]);
-  function completeFilename() {
-    if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) return false;
-    const match = input.value.match(/^(\s*cat\s+)(\.\/)?(\S*)$/i);
-    if (!match) return false;
-    const prefix = match[3].toUpperCase();
-    const matches = [...files.keys()].filter(name => name.toUpperCase().startsWith(prefix));
-    if (!matches.length) return false;
-    if (matches.length === 1) {
-      const start = match[1].length + (match[2]?.length || 0);
-      input.setRangeText(matches[0], start, input.value.length, 'end');
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    } else {
-      commandLine(input.value);
-      line(matches.join('\n'), 'terminal-file');
+  const completionCommands = [...new Set(suggestionCommands.map(command => command.split(' ')[0]))].sort();
+  let completion = null;
+  function resetCompletion() {
+    completion?.menu.remove();
+    completion = null;
+    input.setAttribute('aria-expanded', 'false');
+    input.removeAttribute('aria-controls');
+    input.removeAttribute('aria-activedescendant');
+  }
+  function selectCompletion(direction) {
+    const state = completion;
+    state.index = state.index < 0 ? (direction > 0 ? 0 : state.matches.length - 1)
+      : (state.index + direction + state.matches.length) % state.matches.length;
+    input.value = state.before + state.matches[state.index] + state.suffix;
+    input.setSelectionRange(input.value.length, input.value.length);
+    state.value = input.value;
+    state.options.forEach((option, index) => option.setAttribute('aria-selected', String(index === state.index)));
+    input.setAttribute('aria-activedescendant', state.options[state.index].id);
+    clearSuggestion();
+    scroll(true);
+  }
+  function completeInput(direction = 1) {
+    if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) {
+      resetCompletion();
+      return false;
     }
+    if (completion && completion.value === input.value) {
+      selectCompletion(direction);
+      return true;
+    }
+    resetCompletion();
+    let candidates;
+    let start;
+    let prefix;
+    let suffix = '';
+    const command = input.value.match(/^(\s*)(\S*)$/);
+    const filename = input.value.match(/^(\s*cat\s+)(\.\/)?(\S*)$/i);
+    const argument = input.value.match(/^(\s*(theme|bg)\s+)(\S*)$/i);
+    if (command) {
+      candidates = completionCommands;
+      start = command[1].length;
+      prefix = command[2];
+      suffix = ' ';
+    } else if (filename) {
+      candidates = [...files.keys()].sort();
+      start = filename[1].length + (filename[2]?.length || 0);
+      prefix = filename[3];
+    } else if (argument) {
+      candidates = argument[2].toLowerCase() === 'theme' ? ['dark', 'light'] : ['off', 'on', 'pause', 'resume'];
+      start = argument[1].length;
+      prefix = argument[3];
+    } else return false;
+    const matches = candidates.filter(candidate => candidate.toLowerCase().startsWith(prefix.toLowerCase()));
+    if (!matches.length) return false;
+    const before = input.value.slice(0, start);
+    if (matches.length === 1) {
+      input.value = before + matches[0] + suffix;
+      input.setSelectionRange(input.value.length, input.value.length);
+      clearSuggestion();
+      scroll(true);
+      return true;
+    }
+    let shared = matches[0];
+    while (!matches.every(candidate => candidate.toLowerCase().startsWith(shared.toLowerCase()))) shared = shared.slice(0, -1);
+    input.value = before + shared;
+    input.setSelectionRange(input.value.length, input.value.length);
+    const menu = document.createElement('div');
+    menu.id = 'terminal-completions';
+    menu.className = 'terminal-completions';
+    menu.setAttribute('role', 'listbox');
+    menu.setAttribute('aria-label', 'Варианты автодополнения');
+    const options = matches.map((candidate, index) => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.id = `terminal-completion-${index}`;
+      option.tabIndex = -1;
+      option.textContent = candidate;
+      option.setAttribute('role', 'option');
+      option.setAttribute('aria-selected', 'false');
+      option.addEventListener('click', () => {
+        if (!completion || completion.menu !== menu) return;
+        completion.index = index - 1;
+        selectCompletion(1);
+        resetCompletion();
+        input.focus({ preventScroll: true });
+      });
+      menu.append(option);
+      return option;
+    });
+    completion = { before, matches, suffix, value: input.value, index: -1, menu, options };
+    form.before(menu);
+    input.setAttribute('aria-expanded', 'true');
+    input.setAttribute('aria-controls', menu.id);
+    clearSuggestion();
     scroll(true);
     return true;
   }
@@ -441,6 +520,7 @@
   }
   async function execute(raw) {
     const command = raw.trim();
+    resetCompletion();
     clearSuggestion();
     input.value = '';
     draft = '';
@@ -516,7 +596,8 @@
     scroll(true);
   });
   input.addEventListener('focus', () => { scroll(true); scheduleSuggestion(); });
-  input.addEventListener('input', () => scheduleSuggestion());
+  input.addEventListener('input', () => { resetCompletion(); scheduleSuggestion(); });
+  input.addEventListener('pointerdown', resetCompletion);
   input.addEventListener('compositionstart', () => { composing = true; clearSuggestion(); });
   input.addEventListener('compositionend', () => { composing = false; scheduleSuggestion(); });
   document.addEventListener('visibilitychange', () => { scheduleSuggestion(); updateExperienceViews(); });
@@ -530,12 +611,21 @@
   });
   terminal.addEventListener('keydown', event => {
     if (event.target !== input && event.target !== screen) return;
-    scheduleSuggesqtion();
-    if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
-    if (event.key === 'Tab' && event.target === input && completeFilename()) {
+    scheduleSuggestion();
+    if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey) return;
+    if (event.key === 'Tab' && event.target === input && (!event.shiftKey || completion)
+      && completeInput(event.shiftKey ? -1 : 1)) {
       event.preventDefault();
       return;
     }
+    if (completion && event.target === input && ['ArrowUp', 'ArrowDown', 'Escape'].includes(event.key)) {
+      event.preventDefault();
+      if (event.key === 'Escape') resetCompletion();
+      else selectCompletion(event.key === 'ArrowDown' ? 1 : -1);
+      return;
+    }
+    resetCompletion();
+    if (event.shiftKey) return;
     if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
       event.preventDefault();
       if (!history.length) return;

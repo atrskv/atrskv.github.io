@@ -18,8 +18,8 @@
   let helpDiscovered = false;
   let suggestionIndex = 0;
   const suggestionCommands = [
-    'help', 'ls', 'pwd', 'cat HELP.md', 'leetcode', 'cdt', 'zen', 'cat ZEN.md',
-    'cat CONTEXT-DRIVEN-TESTING-PRINCIPLES.md',
+    'help', 'ls', 'pwd', 'cat HELP.md', 'leetcode', 'exp', 'cat WORK_EXPERIENCE.md', 'cdt', 'zen', 'cat ZEN.md',
+    'cat CONTEXT_DRIVEN_TESTING_PRINCIPLES.md',
     'pytest', 'pytest .', 'pytest . -v', 'python -m pytest',
     'theme light', 'theme dark', 'bg pause', 'bg resume',
     'bg off', 'bg on', 'clear'
@@ -238,18 +238,18 @@
     line('successed');
   }
   const helpFile = [
-    "ls                        содержимое каталога",
-    "pwd                       текущий каталог",
-    "cat <file>                чтение файла",
-    "Tab                       дополнение имени файла после cat",
-    "help                      справка по командам",
-    "leetcode                  статистика LeetCode",
+    "ls                        Содержимое каталога",
+    "pwd                       Текущий каталог",
+    "cat <file>                Чтение файла",
+    "help                      Справка по командам",
+    "leetcode                  Статистика LeetCode",
+    "exp                       Опыт работы",
     "zen                       The Zen of Python",
-    "cdt                       принципы Context-Driven Testing",
-    "pytest [options] [path]   запуск тест-кейсов",
-    "theme <light|dark>        смена темы",
-    "bg <on|off|pause|resume>  управление фоном и его анимацией",
-    "clear                     очистка терминала",
+    "cdt                       Принципы Context-Driven Testing",
+    "pytest [options] [path]   Запуск тест-кейсов",
+    "theme <light|dark>        Смена темы",
+    "bg <on|off|pause|resume>  Управление фоном и его анимацией",
+    "clear                     Очистка терминала",
   ].join('\n');
   function help() {
     helpDiscovered = true;
@@ -278,11 +278,127 @@
     line();
     line(principlesFile, 'terminal-file');
   }
+  const experienceCalendar = new Intl.DateTimeFormat('ru-RU', {
+    timeZone: 'Europe/Moscow', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit', hourCycle: 'h23'
+  });
+  function russianCount(count, forms) {
+    const lastTwo = count % 100;
+    const last = count % 10;
+    const form = lastTwo >= 11 && lastTwo <= 14 ? 2 : last === 1 ? 0 : last >= 2 && last <= 4 ? 1 : 2;
+    return `${count} ${forms[form]}`;
+  }
+  function formatExperienceMonths(months) {
+    const years = Math.floor(months / 12);
+    const remainder = months % 12;
+    const parts = [];
+    if (years) parts.push(russianCount(years, ['год', 'года', 'лет']));
+    if (remainder || !years) parts.push(russianCount(remainder, ['месяц', 'месяца', 'месяцев']));
+    return parts.join(' и ');
+  }
+  function formatCompanyTenure(start, end) {
+    const parts = date => Object.fromEntries(experienceCalendar.formatToParts(date).map(part => [part.type, Number(part.value)]));
+    const first = parts(start);
+    const last = parts(end);
+    // Resume tenure includes both the starting and ending calendar months.
+    const months = Math.max(0, (last.year - first.year) * 12 + last.month - first.month + 1);
+    return formatExperienceMonths(months);
+  }
+  function workExperienceSummary(now = new Date()) {
+    const calendar = Object.fromEntries(experienceCalendar.formatToParts(now).map(part => [part.type, part.value]));
+    return {
+      period: `22.07.2026 — ${calendar.day}.${calendar.month}.${calendar.year}:${calendar.hour}:${calendar.minute}:${calendar.second}`,
+      tenure: formatCompanyTenure(new Date('2026-07-22T00:00:00+03:00'), now),
+      total: formatCompanyTenure(new Date('2022-02-14T00:00:00+03:00'), now)
+    };
+  }
+  const experienceViews = new Set();
+  let experienceTimer = null;
+  function updateExperienceViews() {
+    const summary = workExperienceSummary();
+    for (const view of experienceViews) {
+      if (!view.group.isConnected) {
+        experienceViews.delete(view);
+        continue;
+      }
+      for (const key of ['period', 'tenure', 'total']) {
+        if (view[key].textContent !== summary[key]) view[key].textContent = summary[key];
+      }
+    }
+    if (!experienceViews.size && experienceTimer !== null) {
+      clearInterval(experienceTimer);
+      experienceTimer = null;
+    }
+  }
+  function startExperienceUpdates() {
+    updateExperienceViews();
+    if (experienceViews.size && experienceTimer === null) {
+      experienceTimer = setInterval(updateExperienceViews, 1000);
+    }
+  }
+  function printWorkExperience() {
+    const group = document.createElement('div');
+    group.className = 'terminal-file terminal-experience';
+    output.append(group);
+    function company(name, url, last = false) {
+      const link = document.createElement('a');
+      link.href = url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      const heading = document.createElement('strong');
+      heading.textContent = name;
+      link.append(heading);
+      const row = experienceLine('', false, last ? '└─' : '├─');
+      row.parentElement.classList.add('terminal-experience-company');
+      row.append(link);
+      const tenure = experienceLine('', false, last ? '' : '│');
+      tenure.parentElement.classList.add('terminal-experience-tenure');
+      tenure.setAttribute('aria-live', 'off');
+      return tenure;
+    }
+    function experienceLine(text = '', bold = false, connector = '│') {
+      const row = line('', 'terminal-experience-row', group);
+      const branch = document.createElement('span');
+      branch.textContent = connector;
+      branch.setAttribute('aria-hidden', 'true');
+      const content = document.createElement(bold ? 'strong' : 'span');
+      content.textContent = text;
+      row.append(branch, content);
+      return content;
+    }
+    const tenure = company('Ozon {ech', 'http://ozon.tech/');
+    experienceLine('', false, '│');
+    experienceLine('Senior QA Automation / Старший инженер по автоматизации тестирования', true, '│  └─');
+    const period = experienceLine('', false, '│');
+    period.setAttribute('aria-live', 'off');
+    experienceLine('', false, '│');
+    const biocadTenure = company('BIOCAD', 'https://biocad.ru/', true);
+    biocadTenure.textContent = formatCompanyTenure(new Date('2022-02-14T00:00:00+03:00'), new Date('2026-06-30T00:00:00+03:00'));
+    experienceLine('', false, '   │');
+    const jobs = [
+      ['Senior QA Automation (LEAD) / Старший инженер по тестированию в группе автоматизации', '01.10.2025 — 30.06.2026'],
+      ['Middle QA Automation / Инженер по тестированию в группе автоматизации', '01.04.2023 — 01.10.2025'],
+      ['Junior QA Manual / Младший инженер по тестированию', '14.02.2022 — 01.04.2023']
+    ];
+    jobs.forEach(([title, dates], index) => {
+      if (index) experienceLine('', false, '   │');
+      const last = index === jobs.length - 1;
+      experienceLine(title, true, last ? '   └─' : '   ├─');
+      experienceLine(dates, false, last ? '' : '   │');
+    });
+    line('', '', group);
+    const total = document.createElement('strong');
+    line('Суммарный опыт — ', '', group).append(total);
+    experienceViews.add({ group, period, tenure, total });
+    startExperienceUpdates();
+    scroll(true);
+  }
   const files = new Map([
     ['README.md', printReadme],
     ['HELP.md', help],
+    ['WORK_EXPERIENCE.md', printWorkExperience],
     ['ZEN.md', printZen],
-    ['CONTEXT-DRIVEN-TESTING-PRINCIPLES.md', printPrinciples]
+    ['CONTEXT_DRIVEN_TESTING_PRINCIPLES.md', printPrinciples]
   ]);
   function completeFilename() {
     if (input.selectionStart !== input.value.length || input.selectionEnd !== input.value.length) return false;
@@ -340,7 +456,7 @@
       return;
     }
     const normalized = command.toLowerCase().replace(/\s+/g, ' ');
-    if (normalized === 'clear') { stop(); output.replaceChildren(); scroll(true); scheduleSuggestion(); return; }
+    if (normalized === 'clear') { stop(); output.replaceChildren(); updateExperienceViews(); scroll(true); scheduleSuggestion(); return; }
     commandLine(command);
     scroll(true);
     if (normalized === 'ls' || normalized === 'ls .') line([...files.keys()].join('\n'), 'terminal-file');
@@ -349,6 +465,7 @@
     else if (/^(?:pytest|py\.test|python(?:3)? -m pytest)(?: |$)/.test(normalized)) await runAnimation(pytest);
     else if (normalized === 'help') help();
     else if (normalized === 'leetcode') printLeetcode();
+    else if (normalized === 'exp') printWorkExperience();
     else if (normalized === 'zen') printZen();
     else if (normalized === 'cdt') printPrinciples();
     else if (normalized === 'bg pause') background('paused');
@@ -402,9 +519,10 @@
   input.addEventListener('input', () => scheduleSuggestion());
   input.addEventListener('compositionstart', () => { composing = true; clearSuggestion(); });
   input.addEventListener('compositionend', () => { composing = false; scheduleSuggestion(); });
-  document.addEventListener('visibilitychange', () => scheduleSuggestion());
+  document.addEventListener('visibilitychange', () => { scheduleSuggestion(); updateExperienceViews(); });
   window.addEventListener('pagehide', clearSuggestion);
-  window.addEventListener('pageshow', () => scheduleSuggestion());
+  window.addEventListener('pagehide', () => { clearInterval(experienceTimer); experienceTimer = null; });
+  window.addEventListener('pageshow', () => { scheduleSuggestion(); startExperienceUpdates(); });
   form.addEventListener('submit', event => {
     event.preventDefault();
     execute(input.value);
@@ -412,7 +530,7 @@
   });
   terminal.addEventListener('keydown', event => {
     if (event.target !== input && event.target !== screen) return;
-    scheduleSuggestion();
+    scheduleSuggesqtion();
     if (event.defaultPrevented || event.isComposing || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
     if (event.key === 'Tab' && event.target === input && completeFilename()) {
       event.preventDefault();
